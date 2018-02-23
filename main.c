@@ -24,9 +24,44 @@ int main() {
     fread(&BMPHEADER.bfReserved1,   sizeof(BMPHEADER.bfReserved1),  1, image_file);
     fread(&BMPHEADER.bfReserved2,   sizeof(BMPHEADER.bfReserved2),  1, image_file);
     fread(&BMPHEADER.bfOffBits,     sizeof(BMPHEADER.bfOffBits),    1, image_file);
-
-    printf("bfType\t\t%d\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n", 
+    printf("\t--BITMAPFILEHEADER--\nbfType\t\t%d\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n", 
         BMPHEADER.bfType, BMPHEADER.bfSize, BMPHEADER.bfReserved1, BMPHEADER.bfReserved2, BMPHEADER.bfOffBits);
+
+    BITMAPINFO BMPINFO;
+//  if (BMPINFO.biSize >= 12)
+    fread(&BMPINFO.biSize,          sizeof(BMPINFO.biSize),         1, image_file);
+    fread(&BMPINFO.biWidth,         sizeof(BMPINFO.biWidth),        1, image_file);
+    fread(&BMPINFO.biHeight,        sizeof(BMPINFO.biHeight),       1, image_file);
+    fread(&BMPINFO.biPlanes,        sizeof(BMPINFO.biPlanes),       1, image_file);
+    fread(&BMPINFO.biBitCount,      sizeof(BMPINFO.biBitCount),     1, image_file);
+    
+    if (BMPINFO.biSize >= 40) {
+        fread(&BMPINFO.biCompression,   sizeof(BMPINFO.biCompression),      1, image_file);
+        fread(&BMPINFO.biSizeImage,     sizeof(BMPINFO.biSizeImage),        1, image_file);
+        fread(&BMPINFO.biXPelsPerMeter, sizeof(BMPINFO.biXPelsPerMeter),    1, image_file);
+        fread(&BMPINFO.biYPelsPerMeter, sizeof(BMPINFO.biYPelsPerMeter),    1, image_file);
+        fread(&BMPINFO.biClrUsed,       sizeof(BMPINFO.biClrUsed),          1, image_file);
+        fread(&BMPINFO.biClrImportant,  sizeof(BMPINFO.biClrImportant),     1, image_file);
+    }
+    
+    if (BMPINFO.biSize >= 108) {
+        fread(&BMPINFO.biRedMask,       sizeof(BMPINFO.biRedMask),      1, image_file);
+        fread(&BMPINFO.biGreenMask,     sizeof(BMPINFO.biGreenMask),    1, image_file);
+        fread(&BMPINFO.biBlueMask,      sizeof(BMPINFO.biBlueMask),     1, image_file);
+        fread(&BMPINFO.biAlphaMask,     sizeof(BMPINFO.biAlphaMask),    1, image_file);
+        fread(&BMPINFO.biCSType,        sizeof(BMPINFO.biCSType),       1, image_file);
+        fread(&BMPINFO.biEndpoints,     sizeof(BMPINFO.biEndpoints),    1, image_file);
+        fread(&BMPINFO.biGammaRed,      sizeof(BMPINFO.biGammaRed),     1, image_file);
+        fread(&BMPINFO.biGammaGreen,    sizeof(BMPINFO.biGammaGreen),   1, image_file);
+        fread(&BMPINFO.biGammaBlue,     sizeof(BMPINFO.biGammaBlue),    1, image_file);
+    }
+
+    if (BMPINFO.biSize >= 124) {
+        fread(&BMPINFO.biIntent,          sizeof(BMPINFO.biIntent),         1, image_file);
+        fread(&BMPINFO.biProfileData,          sizeof(BMPINFO.biProfileData),         1, image_file);
+        fread(&BMPINFO.biProfileSize,          sizeof(BMPINFO.biProfileSize),         1, image_file);
+        fread(&BMPINFO.biReserved,          sizeof(BMPINFO.biReserved),         1, image_file);
+    }
 
     printf("File %sclosed.\n", fclose(image_file) == 0 ? "" : "not :) ");
     return 0;
