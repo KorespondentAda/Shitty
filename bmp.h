@@ -145,7 +145,7 @@ typedef struct {
     DWORD   biProfileData;
     DWORD   biProfileSize;
     DWORD   biReserved;
-} BITMAPUINFOHEADER;
+} BITMAPINFO;
 
 typedef struct {
     BYTE rgbBlue;
