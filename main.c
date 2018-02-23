@@ -3,7 +3,7 @@
 
 #include "bmp.h"
 
-#define IMAGEPATH "img/img03.bmp"
+#define IMAGEPATH "img/img09.bmp"
 
 int main() {
 
@@ -35,6 +35,8 @@ int main() {
     fread(&BMPINFO.biPlanes,        sizeof(BMPINFO.biPlanes),       1, image_file);
     fread(&BMPINFO.biBitCount,      sizeof(BMPINFO.biBitCount),     1, image_file);
     
+    printf("\t--BITMAPINFO--\nbiSize\t\t%d\n", BMPINFO.biSize);
+
     if (BMPINFO.biSize >= 40) {
         fread(&BMPINFO.biCompression,   sizeof(BMPINFO.biCompression),      1, image_file);
         fread(&BMPINFO.biSizeImage,     sizeof(BMPINFO.biSizeImage),        1, image_file);

@@ -3,5 +3,5 @@
 
 typedef struct {
     BITMAPFILEHEADER    BMPHeader;
-    BIMAPFILEINFO       BMPInfo;
+    BITMAPINFO       BMPInfo;
 } BMPImage;
