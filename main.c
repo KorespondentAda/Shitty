@@ -3,7 +3,7 @@
 
 #include "bmp.h"
 
-#define IMAGEPATH "/picture.bmp"
+#define IMAGEPATH "img/img03.bmp"
 
 int main() {
 
@@ -19,11 +19,11 @@ int main() {
     }
 
     BITMAPFILEHEADER BMPHEADER;
-    fread(&BMPHEADER.bfType, sizeof(BMPHEADER.bfType), 1, image_file);
-    fread(&BMPHEADER.bfSize, sizeof(BMPHEADER.bfSize), 1, image_file);
-    fread(&BMPHEADER.bfReserved1, sizeof(BMPHEADER.bfReserved1), 1, image_file);
-    fread(&BMPHEADER.bfReserved2, sizeof(BMPHEADER.bfReserved2), 1, image_file);
-    fread(&BMPHEADER.bfOffBits, sizeof(BMPHEADER.bfOffBits), 1, image_file);
+    fread(&BMPHEADER.bfType,        sizeof(BMPHEADER.bfType),       1, image_file);
+    fread(&BMPHEADER.bfSize,        sizeof(BMPHEADER.bfSize),       1, image_file);
+    fread(&BMPHEADER.bfReserved1,   sizeof(BMPHEADER.bfReserved1),  1, image_file);
+    fread(&BMPHEADER.bfReserved2,   sizeof(BMPHEADER.bfReserved2),  1, image_file);
+    fread(&BMPHEADER.bfOffBits,     sizeof(BMPHEADER.bfOffBits),    1, image_file);
 
     printf("bfType\t\t%d\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n", 
         BMPHEADER.bfType, BMPHEADER.bfSize, BMPHEADER.bfReserved1, BMPHEADER.bfReserved2, BMPHEADER.bfOffBits);
