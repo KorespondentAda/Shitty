@@ -84,7 +84,7 @@ typedef struct {
     CIEXYZTRIPLE    bV4Endpoints;
     DWORD   bV4GammaRed;
     DWORD   bV4GammaGreen;
-    DWORD   bV4GammaBlue
+    DWORD   bV4GammaBlue;
 } BITMAPV4HEADER;
 
 typedef struct {
