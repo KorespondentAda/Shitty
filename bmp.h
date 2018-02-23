@@ -118,6 +118,36 @@ typedef struct {
 } BITMAPV5HEADER;
 
 typedef struct {
+    DWORD   biSize;
+    LONG    biWidth;
+    LONG    biHeight;
+    WORD    biPlanes;
+    WORD    biBitCount;
+
+    DWORD   biCompression;
+    DWORD   biSizeImage;
+    LONG    biXPelsPerMeter;
+    LONG    biYPelsPerMeter;
+    DWORD   biClrUsed;
+    DWORD   biClrImportant;
+
+    DWORD   biRedMask;
+    DWORD   biGreenMask;
+    DWORD   biBlueMask;
+    DWORD   biAlphaMask;
+    DWORD   biCSType;
+    CIEXYZTRIPLE    biEndpoints;
+    DWORD   biGammaRed;
+    DWORD   biGammaGreen;
+    DWORD   biGammaBlue;
+
+    DWORD   biIntent;
+    DWORD   biProfileData;
+    DWORD   biProfileSize;
+    DWORD   biReserved;
+} BITMAPUINFOHEADER;
+
+typedef struct {
     BYTE    rgbBlue;
     BYTE    rgbGreen;
     BYTE    rgbRed;

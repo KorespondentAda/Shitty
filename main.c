@@ -28,6 +28,16 @@ int main() {
     printf("bfType\t\t%d\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n", 
         BMPHEADER.bfType, BMPHEADER.bfSize, BMPHEADER.bfReserved1, BMPHEADER.bfReserved2, BMPHEADER.bfOffBits);
 
+    BITMAPUINFOHEADER BMPINFOHEADER;
+    fread(&BMPINFOHEADER.biSize,        sizeof(BMPINFOHEADER.biSize),        1, image_file);
+    fread(&BMPINFOHEADER.biWidth,       sizeof(BMPINFOHEADER.biWidth),       1, image_file);
+    fread(&BMPINFOHEADER.biHeight,      sizeof(BMPINFOHEADER.biHeight),      1, image_file);
+    fread(&BMPINFOHEADER.biPlanes,      sizeof(BMPINFOHEADER.biPlanes),      1, image_file);
+    fread(&BMPINFOHEADER.biBitCount,    sizeof(BMPINFOHEADER.biBitCount),    1, image_file);
+
+    printf("biSize\t\t%d\nbiWidth\t\t%d\nbiHeight\t%d\nbiPlanes\t%d\nbiBitCount\t%d\n", 
+        BMPINFOHEADER.biSize, BMPINFOHEADER.biWidth, BMPINFOHEADER.biHeight, BMPINFOHEADER.biPlanes, BMPINFOHEADER.biBitCount);
+
     printf("File %sclosed.\n", fclose(image_file) == 0 ? "" : "not :) ");
     return 0;
 }
