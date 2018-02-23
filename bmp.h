@@ -118,16 +118,16 @@ typedef struct {
 } BITMAPV5HEADER;
 
 typedef struct {
-    BYTE    rgbBlue;
-    BYTE    rgbGreen;
-    BYTE    rgbRed;
-    BYTE    rgbReserved;
+    BYTE rgbBlue;
+    BYTE rgbGreen;
+    BYTE rgbRed;
+    BYTE rgbReserved;
 } RGBQUAD;
 
 typedef struct {
-    BYTE    rgbtBlue;
-    BYTE    rgbtGreen;
-    BYTE    rgbtRed;
+    BYTE rgbtBlue;
+    BYTE rgbtGreen;
+    BYTE rgbtRed;
 } RGBTRIPLE;
 
 #endif
