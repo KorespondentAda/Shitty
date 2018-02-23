@@ -118,7 +118,6 @@ typedef struct {
 } BITMAPV5HEADER;
 
 typedef struct {
-<<<<<<< HEAD
     DWORD   biSize;
     LONG    biWidth;
     LONG    biHeight;
@@ -149,16 +148,10 @@ typedef struct {
 } BITMAPUINFOHEADER;
 
 typedef struct {
-    BYTE    rgbBlue;
-    BYTE    rgbGreen;
-    BYTE    rgbRed;
-    BYTE    rgbReserved;
-=======
     BYTE rgbBlue;
     BYTE rgbGreen;
     BYTE rgbRed;
     BYTE rgbReserved;
->>>>>>> 28159c0495fbe4d3c7d7f5ebfeb49504103ad517
 } RGBQUAD;
 
 typedef struct {
