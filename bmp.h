@@ -17,7 +17,7 @@ typedef uint16_t    WORD;
 typedef uint32_t    DWORD;
 typedef int32_t     LONG;
 
-typedef int        FXPT2DOT30;
+typedef int         FXPT2DOT30;
 
 typedef struct {
   FXPT2DOT30 ciexyzX;

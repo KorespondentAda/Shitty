@@ -3,7 +3,7 @@
 
 #include "bmp.h"
 
-#define IMAGEPATH "img/img09.bmp"
+#define IMAGEPATH "img/img08.bmp"
 
 int main() {
 
@@ -20,10 +20,15 @@ int main() {
 
     BITMAPFILEHEADER BMPHEADER;
     fread(&BMPHEADER.bfType,        sizeof(BMPHEADER.bfType),       1, image_file);
+    if (BMPHEADER.bfType != 0x4D42 && BMPHEADER.bfType != 0x424D) {
+        printf("File <%s> is not bitmap image...", IMAGEPATH);
+        return 0;
+    }
     fread(&BMPHEADER.bfSize,        sizeof(BMPHEADER.bfSize),       1, image_file);
     fread(&BMPHEADER.bfReserved1,   sizeof(BMPHEADER.bfReserved1),  1, image_file);
     fread(&BMPHEADER.bfReserved2,   sizeof(BMPHEADER.bfReserved2),  1, image_file);
     fread(&BMPHEADER.bfOffBits,     sizeof(BMPHEADER.bfOffBits),    1, image_file);
+    
     printf("\t--BITMAPFILEHEADER--\nbfType\t\t%d\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n\n", 
         BMPHEADER.bfType, BMPHEADER.bfSize, BMPHEADER.bfReserved1, BMPHEADER.bfReserved2, BMPHEADER.bfOffBits);
 
