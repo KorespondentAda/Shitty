@@ -2,12 +2,24 @@
 #ifndef __BITMAP_H__
 #define __BITMAP_H__
 
+// Compression
+#define BI_RGB              0
+#define BI_RLE8             1
+#define BI_RLE4             2
+#define BI_BITFIELDS        3
+#define BI_JPEG             4
+#define BI_PNG              5
+#define BI_ALPHABITFIELDS   6
+
+// CSType
+#define PROFILE_LINKED      0x4C494E4B
+#define PROFILE_EMBEDDED    0x4D42454
+
 typedef uint8_t     BYTE;
 typedef uint16_t    WORD;
 typedef uint32_t    DWORD;
 typedef int32_t     LONG;
-// TODO!
-typedef long        FXPT2DOT30;
+typedef int         FXPT2DOT30;
 
 typedef struct tagCIEXYZ {
   FXPT2DOT30 ciexyzX;
@@ -76,4 +88,5 @@ typedef struct tagRGBTRIPLE {
     BYTE rgbtGreen;
     BYTE rgbtRed;
 } RGBTRIPLE;
+
 #endif
