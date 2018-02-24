@@ -2,6 +2,8 @@
 #ifndef __BITMAP_H__
 #define __BITMAP_H__
 
+#include <stdint.h>
+
 // Compression
 #define BI_RGB              0
 #define BI_RLE8             1

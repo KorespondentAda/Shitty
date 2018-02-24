@@ -1,16 +1,13 @@
 
 #include <stdio.h>
 
-#include "bmp.h"
+#include "bitmap.h"
 
 #define IMAGEPATH "img/img05.bmp"
 
 int main() {
 
-    printf("BITMAPCOREHEADER size = %ld: \t%s\n", sizeof(BITMAPCOREHEADER), sizeof(BITMAPCOREHEADER) == 12 ? "ok" : "error");
-    printf("BITMAPINFOHEADER size = %ld: \t%s\n", sizeof(BITMAPINFOHEADER), sizeof(BITMAPINFOHEADER) == 40 ? "ok" : "error");
-    printf("BITMAPV4HEADER size = %ld: \t%s\n", sizeof(BITMAPV4HEADER), sizeof(BITMAPV4HEADER) == 108 ? "ok" : "error");
-    printf("BITMAPV5HEADER size = %ld: \t%s\n", sizeof(BITMAPV5HEADER), sizeof(BITMAPV5HEADER) == 124 ? "ok" : "error");
+    printf("BITMAPINFO size = %ld: \t%s\n", sizeof(BITMAPINFO), sizeof(BITMAPINFO) == 124 ? "ok" : "error");
 
     FILE * image_file = fopen(IMAGEPATH, "r");
     if (image_file == NULL) {
@@ -29,7 +26,7 @@ int main() {
     fread(&BMPHEADER.bfReserved2,   sizeof(BMPHEADER.bfReserved2),  1, image_file);
     fread(&BMPHEADER.bfOffBits,     sizeof(BMPHEADER.bfOffBits),    1, image_file);
     
-    printf("\t--BITMAPFILEHEADER--\nbfType\t\t%d\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n\n", 
+    printf("\t--BITMAPFILEHEADER--\nbfType\t\t%X\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n\n", 
         BMPHEADER.bfType, BMPHEADER.bfSize, BMPHEADER.bfReserved1, BMPHEADER.bfReserved2, BMPHEADER.bfOffBits);
 
     BITMAPINFO BMPINFO;

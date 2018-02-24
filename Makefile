@@ -1,15 +1,15 @@
 
-obj = main.o bmp.o
+obj = main.o bitmap.o
 exe = test
 
 all: $(obj)
 	gcc $(obj) -o $(exe)
 
-bmp.o: bmp.h bmp.c
-	gcc -c bmp.c
+bitmap.o: src/bitmap.h src/bitmap.c
+	gcc -c src/bitmap.c
 
-main.o: main.c bmp.h
-	gcc -c main.c
+main.o: src/main.c src/bitmap.h
+	gcc -c src/main.c
 
 clean:
 	rm $(obj) $(exe)
