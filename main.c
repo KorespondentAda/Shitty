@@ -3,7 +3,7 @@
 
 #include "bmp.h"
 
-#define IMAGEPATH "img/img08.bmp"
+#define IMAGEPATH "img/img05.bmp"
 
 int main() {
 
@@ -54,7 +54,21 @@ int main() {
         printf("biCompression\t%d\nbiSizeImage\t%d\nbiXPelsPerMeter\t%d\nbiYPelsPerMeter\t%d\nbiClrUsed\t%d\nbiClrImportant\t%d\n\n",
             BMPINFO.biCompression, BMPINFO.biSizeImage, BMPINFO.biXPelsPerMeter, BMPINFO.biYPelsPerMeter, BMPINFO.biClrUsed, BMPINFO.biClrImportant);
     }
-    
+
+    if (BMPINFO.biSize >= 52) {
+        fread(&BMPINFO.biRedMask,       sizeof(BMPINFO.biRedMask),      1, image_file);
+        fread(&BMPINFO.biGreenMask,     sizeof(BMPINFO.biGreenMask),    1, image_file);
+        fread(&BMPINFO.biBlueMask,      sizeof(BMPINFO.biBlueMask),     1, image_file);
+        
+        printf("biRedMask\t%d\nbiGreenMask\t%d\nbiBlueMask\t%d\n", BMPINFO.biRedMask, BMPINFO.biGreenMask, BMPINFO.biBlueMask);
+    }
+
+    if (BMPINFO.biSize >= 56) {
+        fread(&BMPINFO.biAlphaMask,     sizeof(BMPINFO.biAlphaMask),    1, image_file);
+
+        printf("biAlphaMask\t%d\n", BMPINFO.biAlphaMask);
+    }
+
     if (BMPINFO.biSize >= 108) {
         fread(&BMPINFO.biRedMask,       sizeof(BMPINFO.biRedMask),      1, image_file);
         fread(&BMPINFO.biGreenMask,     sizeof(BMPINFO.biGreenMask),    1, image_file);
@@ -66,16 +80,16 @@ int main() {
         fread(&BMPINFO.biGammaGreen,    sizeof(BMPINFO.biGammaGreen),   1, image_file);
         fread(&BMPINFO.biGammaBlue,     sizeof(BMPINFO.biGammaBlue),    1, image_file);
 
-        printf("biRedMask\t%d\nbiGreenMask\t%d\nbiBlueMask\t%d\nbiAlphaMask\t%d\nbiCSType\t%d\nbiEndpoints:\n\tRed:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\n\tGreen:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\n\tBlue:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\nbiGammaRed\t%d\nbiGammaGreen\t%d\nbiGammaBlue\t%d\n\n",
-            BMPINFO.biRedMask, BMPINFO.biGreenMask, BMPINFO.biBlueMask, BMPINFO.biAlphaMask, BMPINFO.biCSType, (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzX, 
-                                                                                                               (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzY, 
-                                                                                                               (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzZ, 
-                                                                                                               (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzX, 
-                                                                                                               (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzY, 
-                                                                                                               (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzZ, 
-                                                                                                               (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzX, 
-                                                                                                               (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzY, 
-                                                                                                               (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzZ, 
+        printf("biCSType\t%d\nbiEndpoints:\n\tRed:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\n\tGreen:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\n\tBlue:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\nbiGammaRed\t%d\nbiGammaGreen\t%d\nbiGammaBlue\t%d\n\n",
+            BMPINFO.biCSType,   (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzX, 
+                                (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzY, 
+                                (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzZ, 
+                                (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzX, 
+                                (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzY, 
+                                (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzZ, 
+                                (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzX, 
+                                (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzY, 
+                                (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzZ, 
             BMPINFO.biGammaRed, BMPINFO.biGammaGreen, BMPINFO.biGammaBlue);
     }
 
