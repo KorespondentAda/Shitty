@@ -1,7 +1,7 @@
 
 #include <stdio.h>
 
-#include "bitmap.h"
+#include "../include/bitmap.h"
 
 #define IMAGEPATH "img/img05.bmp"
 
