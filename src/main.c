@@ -5,18 +5,41 @@
 
 #define IMAGEPATH "img/img05.bmp"
 
-void BITMAPCreate(BITMAP * bitmap, const char * path);
+int BITMAPCreate(BITMAP * bitmap, const char * path);
 
 int main() {
 
-    printf("BITMAPINFO size = %ld: \t%s\n", sizeof(BITMAPINFO), sizeof(BITMAPINFO) == 124 ? "ok" : "error");
+    printf("BITMAPINFO size = %lu: \t%s\n", sizeof(BITMAPINFO), sizeof(BITMAPINFO) == 124 ? "ok" : "error");
 
+    printf("Reading image <%s>... ", IMAGEPATH);
     BITMAP bitmap;
-    BITMAPCreate(&bitmap, IMAGEPATH);
+    switch (BITMAPCreate(&bitmap, IMAGEPATH)) {
+        case 0: {
+            printf("successful\n");
+            break;
+        }
+        case 1: {
+            printf("error: couldn't open image.\n");
+            return 1;
+        }
+        case 2: {
+            printf("error: couldn't close image.\n");
+            return 2;
+        }
+        case 3: {
+            printf("error: <%s> is not bitmap image.\n", IMAGEPATH);
+            return 3;
+        }
+        default: {
+            printf("error: unknown error.\n");
+            return -1;
+        }
+    }
+
     BITMAPFILEHEADER file_header = bitmap.BMPHeader;
     BITMAPINFO       info_header = bitmap.BMPInfo;
     
-    printf("\t--BITMAPFILEHEADER--\nbfType\t\t%X\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n\n", 
+    printf("\n\t--BITMAPFILEHEADER--\nbfType\t\t%X\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n\n", 
         file_header.bfType, file_header.bfSize, file_header.bfReserved1, file_header.bfReserved2, file_header.bfOffBits);
     /*
     printf("\t--BITMAPINFO--\nbiSize\t\t%d\nbiWidth\t\t%d\nbiHeight\t%d\nbiPlanes\t%d\nbiBitCount\t%d\n\n",
@@ -57,18 +80,14 @@ int main() {
     return 0;
 }
 
-void BITMAPCreate(BITMAP * bitmap, const char * path) {
+int BITMAPCreate(BITMAP * bitmap, const char * path) {
     FILE * bitmap_file = fopen(path, "r");
-    if (bitmap_file == NULL) {
-        printf("<%s>: Can't open image file...\n", path);
-        return;
-    }
+    if (bitmap_file == NULL) 
+        return 1;
     
     fread(&bitmap->BMPHeader.bfType,        sizeof(bitmap->BMPHeader.bfType),       1, bitmap_file);
-    if (bitmap->BMPHeader.bfType != 0x4D42 && bitmap->BMPHeader.bfType != 0x424D) {
-        printf("<%s>: File is not bitmap image...", path);
-        return;
-    }
+    if (bitmap->BMPHeader.bfType != 0x4D42 && bitmap->BMPHeader.bfType != 0x424D)
+        return 3;
     fread(&bitmap->BMPHeader.bfSize,        sizeof(bitmap->BMPHeader.bfSize),       1, bitmap_file);
     fread(&bitmap->BMPHeader.bfReserved1,   sizeof(bitmap->BMPHeader.bfReserved1),  1, bitmap_file);
     fread(&bitmap->BMPHeader.bfReserved2,   sizeof(bitmap->BMPHeader.bfReserved2),  1, bitmap_file);
@@ -125,5 +144,8 @@ void BITMAPCreate(BITMAP * bitmap, const char * path) {
         fread(&bitmap->BMPInfo.biReserved,      sizeof(bitmap->BMPInfo.biReserved),         1, bitmap_file);
     }
 
-    fclose(bitmap_file);
+    if (fclose(bitmap_file)) 
+        return 2;
+    
+    return 0;
 }
