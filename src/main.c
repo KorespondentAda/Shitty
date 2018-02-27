@@ -3,9 +3,10 @@
 
 #include "../include/bitmap.h"
 
-#define IMAGEPATH "img/img05.bmp"
+#define IMAGEPATH "img/img09.bmp"
 
 int BITMAPCreate(BITMAP * bitmap, const char * path);
+int BITMAPOutInfo(BITMAP * bitmap);
 
 int main() {
 
@@ -41,42 +42,13 @@ int main() {
     
     printf("\n\t--BITMAPFILEHEADER--\nbfType\t\t%X\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n\n", 
         file_header.bfType, file_header.bfSize, file_header.bfReserved1, file_header.bfReserved2, file_header.bfOffBits);
-    /*
-    printf("\t--BITMAPINFO--\nbiSize\t\t%d\nbiWidth\t\t%d\nbiHeight\t%d\nbiPlanes\t%d\nbiBitCount\t%d\n\n",
-        BMPINFO.biSize, BMPINFO.biWidth, BMPINFO.biHeight, BMPINFO.biPlanes, BMPINFO.biBitCount);
-
-    if (BMPINFO.biSize >= 40) {
-        printf("biCompression\t%d\nbiSizeImage\t%d\nbiXPelsPerMeter\t%d\nbiYPelsPerMeter\t%d\nbiClrUsed\t%d\nbiClrImportant\t%d\n\n",
-            BMPINFO.biCompression, BMPINFO.biSizeImage, BMPINFO.biXPelsPerMeter, BMPINFO.biYPelsPerMeter, BMPINFO.biClrUsed, BMPINFO.biClrImportant);
+    
+    printf("About <%s>: \n", IMAGEPATH);
+    if (BITMAPOutInfo(&bitmap)) {
+        printf("Error");
+        return -1;
     }
 
-    if (BMPINFO.biSize >= 52) {
-        printf("biRedMask\t%d\nbiGreenMask\t%d\nbiBlueMask\t%d\n", BMPINFO.biRedMask, BMPINFO.biGreenMask, BMPINFO.biBlueMask);
-    }
-
-    if (BMPINFO.biSize >= 56) {
-        printf("biAlphaMask\t%d\n", BMPINFO.biAlphaMask);
-    }
-
-    if (BMPINFO.biSize >= 108) {
-        printf("biCSType\t%d\nbiEndpoints:\n\tRed:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\n\tGreen:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\n\tBlue:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\nbiGammaRed\t%d\nbiGammaGreen\t%d\nbiGammaBlue\t%d\n\n",
-            BMPINFO.biCSType,   (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzX, 
-                                (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzY, 
-                                (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzZ, 
-                                (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzX, 
-                                (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzY, 
-                                (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzZ, 
-                                (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzX, 
-                                (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzY, 
-                                (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzZ, 
-            BMPINFO.biGammaRed, BMPINFO.biGammaGreen, BMPINFO.biGammaBlue);
-    }
-
-    if (BMPINFO.biSize >= 124) {
-        printf("biIntent\t%d\nbiProfileData\t%d\nbiProfileSize\t%d\nbiReserved\t%d\n\n",
-            BMPINFO.biIntent, BMPINFO.biProfileData, BMPINFO.biProfileSize, BMPINFO.biReserved);
-    }
-    */
     return 0;
 }
 
@@ -125,10 +97,11 @@ int BITMAPCreate(BITMAP * bitmap, const char * path) {
 
     // Reading V-4
     if (bitmap->BMPInfo.biSize >= 108) {
-        fread(&bitmap->BMPInfo.biRedMask,       sizeof(bitmap->BMPInfo.biRedMask),      1, bitmap_file);
+        // I think we souldn't read masks again
+      /*fread(&bitmap->BMPInfo.biRedMask,       sizeof(bitmap->BMPInfo.biRedMask),      1, bitmap_file);
         fread(&bitmap->BMPInfo.biGreenMask,     sizeof(bitmap->BMPInfo.biGreenMask),    1, bitmap_file);
         fread(&bitmap->BMPInfo.biBlueMask,      sizeof(bitmap->BMPInfo.biBlueMask),     1, bitmap_file);
-        fread(&bitmap->BMPInfo.biAlphaMask,     sizeof(bitmap->BMPInfo.biAlphaMask),    1, bitmap_file);
+        fread(&bitmap->BMPInfo.biAlphaMask,     sizeof(bitmap->BMPInfo.biAlphaMask),    1, bitmap_file);*/
         fread(&bitmap->BMPInfo.biCSType,        sizeof(bitmap->BMPInfo.biCSType),       1, bitmap_file);
         fread(&bitmap->BMPInfo.biEndpoints,     sizeof(bitmap->BMPInfo.biEndpoints),    1, bitmap_file);
         fread(&bitmap->BMPInfo.biGammaRed,      sizeof(bitmap->BMPInfo.biGammaRed),     1, bitmap_file);
@@ -147,5 +120,54 @@ int BITMAPCreate(BITMAP * bitmap, const char * path) {
     if (fclose(bitmap_file)) 
         return 2;
     
+    return 0;
+}
+
+int BITMAPOutInfo(BITMAP * bitmap) {
+    BITMAPINFO info = bitmap->BMPInfo;
+
+    // Block 1
+    if (0 > printf("\n\t--BITMAPINFO--\nbiSize\t\t%llu\nbiWidth\t\t%lld\nbiHeight\t%lld\nbiPlanes\t%u\nbiBitCount\t%u\n", 
+            info.biSize, info.biWidth, info.biHeight, info.biPlanes))
+        return 1;
+    
+    // Block 2
+    if (info.biSize >= 40) {
+        if (0 > printf("biCompression\t%llu\nbiSizeImage\t%llu\nbiXPelsPerMeter\t%lld\nbiYPelsPerMeter\t%lld\nbiClrUsed\t%llu\nbiClrImportant\t%llu\n", 
+                info.biCompression, info.biSizeImage, info.biXPelsPerMeter, info.biYPelsPerMeter, info.biClrUsed, info.biClrImportant))
+            return 2;
+    } else return 0;
+
+    // Block 3
+    if (info.biSize >= 52) {
+        if (0 > printf("biRedMask\t%llu\nbiGreenMask\t%llu\nbiBlueMask\t%llu\n", 
+                info.biGreenMask, info.biRedMask, info.biBlueMask))
+            return 3;
+    } else return 0;
+
+    // Block 4
+    if (info.biSize >= 56) {
+        if (0 > printf("biAlphaMask\t%llu\n", 
+                info.biAlphaMask))
+            return 4;
+    } else return 0;
+
+    // Block 5
+    if  (info.biSize >= 108) {
+        if (0 > printf("biCSType\t%llu\nbiEndpoints: \nRed:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nGreen:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nBlue:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nbiGammaRed\t%llu\nbiGammaGreen\t%llu\nbiGammaBlue\t%llu\n", 
+                info.biCSType, info.biEndpoints.ciexyzRed.ciexyzX, info.biEndpoints.ciexyzRed.ciexyzY, info.biEndpoints.ciexyzRed.ciexyzZ, 
+                info.biEndpoints.ciexyzGreen.ciexyzX, info.biEndpoints.ciexyzGreen.ciexyzY, info.biEndpoints.ciexyzGreen.ciexyzZ, 
+                info.biEndpoints.ciexyzBlue.ciexyzX, info.biEndpoints.ciexyzBlue.ciexyzY, info.biEndpoints.ciexyzBlue.ciexyzZ, 
+                info.biGammaRed, info.biGammaGreen, info.biGammaBlue))
+            return 5;
+    } else return 0;
+
+    // Block 6
+    if (info.biSize >= 124) {
+        if (0 > printf("biIntent\t%llu\nbiProfileData\t%llu\nbiProfileSize\t%llu\nbiReserved\t%llu\n", 
+                info.biIntent, info.biProfileData, info.biProfileSize, info.biReserved))
+            return 6;
+    } else return 0;
+
     return 0;
 }
