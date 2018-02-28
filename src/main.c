@@ -40,7 +40,7 @@ int main() {
     BITMAPFILEHEADER file_header = bitmap.BMPHeader;
     BITMAPINFO       info_header = bitmap.BMPInfo;
     
-    printf("\n\t--BITMAPFILEHEADER--\nbfType\t\t%X\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n\n", 
+    printf("\n\t--BITMAPFILEHEADER--\nbfType\t\t0x%X\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n\n", 
         file_header.bfType, file_header.bfSize, file_header.bfReserved1, file_header.bfReserved2, file_header.bfOffBits);
     
     printf("About <%s>: \n", IMAGEPATH);
@@ -154,7 +154,7 @@ int BITMAPOutInfo(BITMAP * bitmap) {
 
     // Block 5
     if  (info.biSize >= 108) {
-        if (0 > printf("biCSType\t%llu\nbiEndpoints: \nRed:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nGreen:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nBlue:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nbiGammaRed\t%llu\nbiGammaGreen\t%llu\nbiGammaBlue\t%llu\n", 
+        if (0 > printf("biCSType\t0x%X\nbiEndpoints: \nRed:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nGreen:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nBlue:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nbiGammaRed\t%llu\nbiGammaGreen\t%llu\nbiGammaBlue\t%llu\n", 
                 info.biCSType, info.biEndpoints.ciexyzRed.ciexyzX, info.biEndpoints.ciexyzRed.ciexyzY, info.biEndpoints.ciexyzRed.ciexyzZ, 
                 info.biEndpoints.ciexyzGreen.ciexyzX, info.biEndpoints.ciexyzGreen.ciexyzY, info.biEndpoints.ciexyzGreen.ciexyzZ, 
                 info.biEndpoints.ciexyzBlue.ciexyzX, info.biEndpoints.ciexyzBlue.ciexyzY, info.biEndpoints.ciexyzBlue.ciexyzZ, 

@@ -14,8 +14,11 @@
 #define BI_ALPHABITFIELDS   6
 
 // CSType
-#define PROFILE_LINKED      0x4C494E4B
-#define PROFILE_EMBEDDED    0x4D42454
+#define LCS_CALIBRATED_RGB      0x00000000
+#define LCS_sRGB                0x73524742
+#define LCS_WINDOWS_COLOR_SPACE 0x57696E20
+#define PROFILE_LINKED          0x4C494E4B
+#define PROFILE_EMBEDDED        0x4D424544
 
 typedef uint8_t     BYTE;
 typedef uint16_t    WORD;
