@@ -95,4 +95,7 @@ typedef struct tagRGBTRIPLE {
     BYTE rgbtRed;
 } RGBTRIPLE;
 
+int BITMAPCreate(BITMAP * bitmap, const char * path);
+int BITMAPOutInfo(BITMAP * bitmap);
+
 #endif
