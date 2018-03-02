@@ -7,14 +7,30 @@ int BITMAPCreate(BITMAP * bitmap, const char * path) {
     if (bitmap_file == NULL) 
         return 1;
     
+    if (BITMAPReadHeader(bitmap, bitmap_file))
+        return 3;
+
+    if (BITMAPReadInfo(bitmap, bitmap_file))
+        return 4;
+
+    if (fclose(bitmap_file)) 
+        return 2;
+    
+    return 0;
+}
+
+int BITMAPReadHeader(BITMAP * bitmap, FILE * bitmap_file) {
     fread(&bitmap->BMPHeader.bfType,        sizeof(bitmap->BMPHeader.bfType),       1, bitmap_file);
     if (bitmap->BMPHeader.bfType != 0x4D42 && bitmap->BMPHeader.bfType != 0x424D)
-        return 3;
+        return 3; //It is not BMP image
     fread(&bitmap->BMPHeader.bfSize,        sizeof(bitmap->BMPHeader.bfSize),       1, bitmap_file);
     fread(&bitmap->BMPHeader.bfReserved1,   sizeof(bitmap->BMPHeader.bfReserved1),  1, bitmap_file);
     fread(&bitmap->BMPHeader.bfReserved2,   sizeof(bitmap->BMPHeader.bfReserved2),  1, bitmap_file);
     fread(&bitmap->BMPHeader.bfOffBits,     sizeof(bitmap->BMPHeader.bfOffBits),    1, bitmap_file);
-    
+    return 0;
+}
+
+int BITMAPReadInfo(BITMAP * bitmap, FILE * bitmap_file) {
     // Reading V-CORE
     //if (BMPINFO.biSize >= 12)
     fread(&bitmap->BMPInfo.biSize,          sizeof(bitmap->BMPInfo.biSize),         1, bitmap_file);
@@ -47,11 +63,6 @@ int BITMAPCreate(BITMAP * bitmap, const char * path) {
 
     // Reading V-4
     if (bitmap->BMPInfo.biSize >= 108) {
-        // I think we souldn't read masks again
-      /*fread(&bitmap->BMPInfo.biRedMask,       sizeof(bitmap->BMPInfo.biRedMask),      1, bitmap_file);
-        fread(&bitmap->BMPInfo.biGreenMask,     sizeof(bitmap->BMPInfo.biGreenMask),    1, bitmap_file);
-        fread(&bitmap->BMPInfo.biBlueMask,      sizeof(bitmap->BMPInfo.biBlueMask),     1, bitmap_file);
-        fread(&bitmap->BMPInfo.biAlphaMask,     sizeof(bitmap->BMPInfo.biAlphaMask),    1, bitmap_file);*/
         fread(&bitmap->BMPInfo.biCSType,        sizeof(bitmap->BMPInfo.biCSType),       1, bitmap_file);
         fread(&bitmap->BMPInfo.biEndpoints,     sizeof(bitmap->BMPInfo.biEndpoints),    1, bitmap_file);
         fread(&bitmap->BMPInfo.biGammaRed,      sizeof(bitmap->BMPInfo.biGammaRed),     1, bitmap_file);
@@ -61,15 +72,11 @@ int BITMAPCreate(BITMAP * bitmap, const char * path) {
 
     // Reading V-5
     if (bitmap->BMPInfo.biSize >= 124) {
-        fread(&bitmap->BMPInfo.biIntent,        sizeof(bitmap->BMPInfo.biIntent),         1, bitmap_file);
-        fread(&bitmap->BMPInfo.biProfileData,   sizeof(bitmap->BMPInfo.biProfileData),         1, bitmap_file);
-        fread(&bitmap->BMPInfo.biProfileSize,   sizeof(bitmap->BMPInfo.biProfileSize),         1, bitmap_file);
-        fread(&bitmap->BMPInfo.biReserved,      sizeof(bitmap->BMPInfo.biReserved),         1, bitmap_file);
+        fread(&bitmap->BMPInfo.biIntent,        sizeof(bitmap->BMPInfo.biIntent),       1, bitmap_file);
+        fread(&bitmap->BMPInfo.biProfileData,   sizeof(bitmap->BMPInfo.biProfileData),  1, bitmap_file);
+        fread(&bitmap->BMPInfo.biProfileSize,   sizeof(bitmap->BMPInfo.biProfileSize),  1, bitmap_file);
+        fread(&bitmap->BMPInfo.biReserved,      sizeof(bitmap->BMPInfo.biReserved),     1, bitmap_file);
     }
-
-    if (fclose(bitmap_file)) 
-        return 2;
-    
     return 0;
 }
 
@@ -96,21 +103,21 @@ int BITMAPOutInfo(BITMAP * bitmap) {
 
     // Block 4
     if (info.biSize >= 52) {
-        if (0 > printf("biRedMask\t%llu\nbiGreenMask\t%llu\nbiBlueMask\t%llu\n", 
+        if (0 > printf("biRedMask\t0x%08X\nbiGreenMask\t0x%08X\nbiBlueMask\t0x%08X\n", 
                 info.biGreenMask, info.biRedMask, info.biBlueMask))
             return 4;
     }
 
     // Block 5
     if (info.biSize >= 56) {
-        if (0 > printf("biAlphaMask\t%llu\n", 
+        if (0 > printf("biAlphaMask\t0x%08X\n", 
                 info.biAlphaMask))
             return 5;
     }
 
     // Block 6
     if  (info.biSize >= 108) {
-        if (0 > printf("biCSType\t0x%X\nbiEndpoints: \nRed:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nGreen:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nBlue:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nbiGammaRed\t%llu\nbiGammaGreen\t%llu\nbiGammaBlue\t%llu\n", 
+        if (0 > printf("biCSType\t0x%08X\nbiEndpoints: \nRed:\tX\t%llu\n\tY\t%lld\n\tZ\t%lld\nGreen:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nBlue:\tX\t%lld\n\tY\t%lld\n\tZ\t%lld\nbiGammaRed\t%llu\nbiGammaGreen\t%llu\nbiGammaBlue\t%llu\n", 
                 info.biCSType, info.biEndpoints.ciexyzRed.ciexyzX, info.biEndpoints.ciexyzRed.ciexyzY, info.biEndpoints.ciexyzRed.ciexyzZ, 
                 info.biEndpoints.ciexyzGreen.ciexyzX, info.biEndpoints.ciexyzGreen.ciexyzY, info.biEndpoints.ciexyzGreen.ciexyzZ, 
                 info.biEndpoints.ciexyzBlue.ciexyzX, info.biEndpoints.ciexyzBlue.ciexyzY, info.biEndpoints.ciexyzBlue.ciexyzZ, 

@@ -3,7 +3,7 @@
 
 #include "../include/bitmap.h"
 
-#define IMAGEPATH "img/img09.bmp"
+#define IMAGEPATH "img/img03.bmp"
 
 int main() {
 
@@ -28,15 +28,16 @@ int main() {
             printf("error: <%s> is not bitmap image.\n", IMAGEPATH);
             return 3;
         }
+        case 4: {
+            printf("error: reading info error.\n");
+            return 4;
+        }
         default: {
             printf("error: unknown error.\n");
             return -1;
         }
     }
-    /*
-    BITMAPFILEHEADER file_header = bitmap.BMPHeader;
-    BITMAPINFO       info_header = bitmap.BMPInfo;
-    */
+
     printf("About <%s>: \n", IMAGEPATH);
     if (BITMAPOutInfo(&bitmap)) {
         printf("Error");

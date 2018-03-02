@@ -3,6 +3,7 @@
 #define __BITMAP_H__
 
 #include <stdint.h>
+#include <stdio.h>
 
 // Compression
 #define BI_RGB              0
@@ -96,6 +97,8 @@ typedef struct tagRGBTRIPLE {
 } RGBTRIPLE;
 
 int BITMAPCreate(BITMAP * bitmap, const char * path);
+int BITMAPReadHeader(BITMAP * bitmap, FILE * bitmap_file);
+int BITMAPReadInfo(BITMAP * bitmap, FILE * bitmap_file);
 int BITMAPOutInfo(BITMAP * bitmap);
 
 #endif
