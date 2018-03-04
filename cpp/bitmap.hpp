@@ -2,7 +2,7 @@
 #ifndef __BITMAP_HPP__
 #define __BITMAP_HPP__
 
-#include "bitmapdefs.hpp"
+#include "bitmapdef.hpp"
 
 #include <cstdint>
 #include <cstdio>
