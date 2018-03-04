@@ -1,16 +1,20 @@
 
-obj = main.o bitmap.o
-exe = test
+INCLUDE = ./include/
+CODE = ./src/
+OBJ = main.o bitmap.o
+EXE = test
+CC = gcc
+CFLAGS = -c -Wall
 
-all: $(obj)
-	gcc $(obj) -o $(exe)
+all: $(OBJ)
+	$(CC) $(OBJ) -o $(EXE)
 
-bitmap.o: src/bitmap.h src/bitmap.c
-	gcc -c src/bitmap.c
+bitmap.o: $(INCLUDE)bitmap.h $(CODE)bitmap.c
+	$(CC) $(CFLAGS) $(CODE)bitmap.c
 
-main.o: src/main.c src/bitmap.h
-	gcc -c src/main.c
+main.o: $(CODE)main.c $(INCLUDE)bitmap.h
+	$(CC) $(CFLAGS) $(CODE)main.c
 
 clean:
-	rm $(obj) $(exe)
+	rm $(OBJ) $(EXE)
 	
