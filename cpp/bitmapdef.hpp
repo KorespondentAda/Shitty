@@ -2,6 +2,8 @@
 #ifndef __BITMAPDEF_HPP__
 #define __BITMAPDEF_HPP__
 
+#include <cstdint>
+
 // Compression
 #define BI_RGB              0
 #define BI_RLE8             1

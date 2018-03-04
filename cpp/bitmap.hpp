@@ -4,8 +4,8 @@
 
 #include "bitmapdef.hpp"
 
-#include <cstdint>
 #include <cstdio>
+#include <string>
 #include <fstream>
 
 class Bitmap {
@@ -18,9 +18,9 @@ private:
     int readInform(std::ifstream & inStream);
     int readPictur(std::ifstream & inStream);
 
-    int writeHeader(std::ifstream & outStream);
+    int writeHeader(std::ofstream & outStream);
     int writeInform(std::ofstream & outStream);
-    int writePictur(std::ifstream & outStream);
+    int writePictur(std::ofstream & outStream);
 
     int checkType(WORD bfType);
     BYTE bitExtract(BYTE byte, DWORD mask);
@@ -28,18 +28,18 @@ private:
 public:
     Bitmap();
 
-    Bitmap(const bitmap & bm);
-    Bitmap(bitmap && bm);
+    Bitmap(const Bitmap & bm);
+    Bitmap(Bitmap && bm);
 
     Bitmap & operator=(const Bitmap & bm);
     Bitmap & operator=(Bitmap && bm);
 
     // Загрузка изображения из файла.
     // path - путь к изображению.
-    int load(const string & path);
+    int load(const std::string & path);
     // Сохранение изображения в файл.
     // path - путь к изображению.
-    int save(const string & path);
+    int save(const std::string & path);
     // Рисование прямоугольника.
     // (x; y) - координаты верхнего левого угла.
     // lineWidth - ширина линий.
@@ -64,7 +64,7 @@ public:
 
 template <typename Type>
 void read(std::ifstream & inStream, Type & result) {
-    ifStream.read(reinterpret_cast<char*>(&result), sizeof(result));
+    inStream.read(reinterpret_cast<char*>(&result), sizeof(result));
 }
  
 #endif // __BITMAP_HPP__

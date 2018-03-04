@@ -55,25 +55,30 @@ int Bitmap::readPictur(std::ifstream & inStream) {
     for (int i = 0; i < inform.biHeight; ++i) 
         image[i] = new RGBQUAD[inform.biWidth];
     
+    /* To debug
     WORD bytesPerPixel = inform.biBitCount >> 3;
     BYTE buffer[bytesPerPixel];
     for (int i = 0; i < inform.biHeight; ++i) 
         for (int j = 0; j < inform.biWidth; ++j) {
-            read(fileStream, buffer);
+            read(inStream, buffer);
             image[i][j].rgbBlue     = bitExtract(buffer, inform.biRedMask);
             image[i][j].rgbGreen    = bitExtract(buffer, inform.biGreenMask);
             image[i][j].rgbRed      = bitExtract(buffer, inform.biBlueMask);
             image[i][j].rgbReserved = bitExtract(buffer, inform.biAlphaMask);
-        }
+        }*/
+    return 0;
 }
 
-int Bitmap::writeHeader(std::ifstream & outStream) {
+int Bitmap::writeHeader(std::ofstream & outStream) {
+    return 0;
 }
 
 int Bitmap::writeInform(std::ofstream & outStream) {
+    return 0;
 }
 
 int Bitmap::writePictur(std::ofstream & outStream) {
+    return 0;
 }
 
 int Bitmap::checkType(WORD bfType) {
@@ -84,16 +89,16 @@ BYTE Bitmap::bitExtract(BYTE byte, DWORD mask) {
     if (mask == 0) {
         return 0;
     } 
-    DWORD   maskBuffer = mask,
+    DWORD   maskBuffer = mask;
     int     maskPadding = 0;
-    while (!(maskBufer & 1)) {
-        maskBufer >>= 1;
+    while (!(maskBuffer & 1)) {
+        maskBuffer >>= 1;
         ++maskPadding;
     }
     return (byte & mask) >> maskPadding;
 }
 
-int Bitmap::load(const string & path) {
+int Bitmap::load(const std::string & path) {
     
     std::ifstream inStream(path);
     if (!inStream.is_open())
@@ -108,7 +113,7 @@ int Bitmap::load(const string & path) {
     return 0;
 }
 
-int Bitmap::save(const string & path) {
+int Bitmap::save(const std::string & path) {
 
     std::ofstream outStream(path);
     if (!outStream.is_open())
