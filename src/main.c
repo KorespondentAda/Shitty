@@ -3,7 +3,7 @@
 
 #include "bitmap.h"
 
-#define IMAGEPATH "img/img05.bmp"
+#define IMAGEPATH "img/img08.bmp"
 
 void BITMAPCreate(BITMAP * bitmap, const char * path);
 
@@ -13,47 +13,16 @@ int main() {
 
     BITMAP bitmap;
     BITMAPCreate(&bitmap, IMAGEPATH);
-    BITMAPFILEHEADER file_header = bitmap.BMPHeader;
-    BITMAPINFO       info_header = bitmap.BMPInfo;
+    BITMAPInfoPrint(bitmap);
+    // Выделение памяти под изображение.
+    RGBQUAD ** image = (RGBQUAD **)malloc(bitmap.BMPInfo.biHeight);
+    int i;
+    for (i = 0; i < bitmap.BMPInfo.biHeight; ++i)
+        image[i] = (RGBQUAD *)malloc(bitmap.BMPInfo.biWidth);
+    // Размер отступа.
+    int linePadding = ((bitmap.BMPInfo.biWidth * (bitmap.BMPInfo.biBitCount / 8)) % 4) & 3;
+    printf("line padding == %d\n", linePadding);
     
-    printf("\t--BITMAPFILEHEADER--\nbfType\t\t%X\nbfSize\t\t%d\nbfReserved1\t%d\nbfReserved2\t%d\nbfOffBits\t%d\n\n", 
-        file_header.bfType, file_header.bfSize, file_header.bfReserved1, file_header.bfReserved2, file_header.bfOffBits);
-    /*
-    printf("\t--BITMAPINFO--\nbiSize\t\t%d\nbiWidth\t\t%d\nbiHeight\t%d\nbiPlanes\t%d\nbiBitCount\t%d\n\n",
-        BMPINFO.biSize, BMPINFO.biWidth, BMPINFO.biHeight, BMPINFO.biPlanes, BMPINFO.biBitCount);
-
-    if (BMPINFO.biSize >= 40) {
-        printf("biCompression\t%d\nbiSizeImage\t%d\nbiXPelsPerMeter\t%d\nbiYPelsPerMeter\t%d\nbiClrUsed\t%d\nbiClrImportant\t%d\n\n",
-            BMPINFO.biCompression, BMPINFO.biSizeImage, BMPINFO.biXPelsPerMeter, BMPINFO.biYPelsPerMeter, BMPINFO.biClrUsed, BMPINFO.biClrImportant);
-    }
-
-    if (BMPINFO.biSize >= 52) {
-        printf("biRedMask\t%d\nbiGreenMask\t%d\nbiBlueMask\t%d\n", BMPINFO.biRedMask, BMPINFO.biGreenMask, BMPINFO.biBlueMask);
-    }
-
-    if (BMPINFO.biSize >= 56) {
-        printf("biAlphaMask\t%d\n", BMPINFO.biAlphaMask);
-    }
-
-    if (BMPINFO.biSize >= 108) {
-        printf("biCSType\t%d\nbiEndpoints:\n\tRed:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\n\tGreen:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\n\tBlue:\n\t\tX\t%d\n\t\tY\t%d\n\t\tZ\t%d\nbiGammaRed\t%d\nbiGammaGreen\t%d\nbiGammaBlue\t%d\n\n",
-            BMPINFO.biCSType,   (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzX, 
-                                (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzY, 
-                                (int)BMPINFO.biEndpoints.ciexyzRed.ciexyzZ, 
-                                (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzX, 
-                                (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzY, 
-                                (int)BMPINFO.biEndpoints.ciexyzGreen.ciexyzZ, 
-                                (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzX, 
-                                (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzY, 
-                                (int)BMPINFO.biEndpoints.ciexyzBlue.ciexyzZ, 
-            BMPINFO.biGammaRed, BMPINFO.biGammaGreen, BMPINFO.biGammaBlue);
-    }
-
-    if (BMPINFO.biSize >= 124) {
-        printf("biIntent\t%d\nbiProfileData\t%d\nbiProfileSize\t%d\nbiReserved\t%d\n\n",
-            BMPINFO.biIntent, BMPINFO.biProfileData, BMPINFO.biProfileSize, BMPINFO.biReserved);
-    }
-    */
     return 0;
 }
 
@@ -75,7 +44,6 @@ void BITMAPCreate(BITMAP * bitmap, const char * path) {
     fread(&bitmap->BMPHeader.bfOffBits,     sizeof(bitmap->BMPHeader.bfOffBits),    1, bitmap_file);
     
     // Reading V-CORE
-//  if (BMPINFO.biSize >= 12)
     fread(&bitmap->BMPInfo.biSize,          sizeof(bitmap->BMPInfo.biSize),         1, bitmap_file);
     fread(&bitmap->BMPInfo.biWidth,         sizeof(bitmap->BMPInfo.biWidth),        1, bitmap_file);
     fread(&bitmap->BMPInfo.biHeight,        sizeof(bitmap->BMPInfo.biHeight),       1, bitmap_file);
