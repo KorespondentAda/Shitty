@@ -4,6 +4,7 @@
 
 #include <cstdint>
 #include <cstdio>
+#include <fstream>
 
 // Compression
 #define BI_RGB              0
@@ -96,6 +97,15 @@ private:
     BITMAPFILEHEADER    header;
     BITMAPINFO          info;
     RGBQUAD **          image;
+    
+    int readHeader(std::ifstream & inStream);
+    int readInform(std::ifstream & inStream);
+    int readPictur(std::ifstream & inStream);
+
+    int writeHeader(std::ifstream & outStream);
+    int writeInform(std::ofstream & outStream);
+    int writePictur(std::ifstream & outStream);
+    
 public:
     Bitmap();
 
