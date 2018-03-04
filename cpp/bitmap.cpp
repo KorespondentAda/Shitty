@@ -2,19 +2,21 @@
 #include "bitmap.hpp"
 
 int Bitmap::readHeader(std::ifstream & inStream) {
-
 }
 
 int Bitmap::readInform(std::ifstream & inStream) {
+}
 
+int Bitmap::readPictur(std::ifstream & inStream) {
 }
 
 int Bitmap::writeHeader(std::ifstream & outStream) {
-    
 }
 
 int Bitmap::writeInform(std::ofstream & outStream) {
+}
 
+int Bitmap::writePictur(std::ofstream & outStream) {
 }
 
 int Bitmap::load(const string & path) {
@@ -41,7 +43,7 @@ int Bitmap::save(const string & path) {
     writeHeader(outStream);
     writeInform(outStream);
     writePictur(outStream);
-    
+
     outStream.close();
     
     return 0;
