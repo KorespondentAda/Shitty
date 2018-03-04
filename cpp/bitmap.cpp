@@ -3,7 +3,7 @@
 
 int Bitmap::readHeader(std::ifstream & inStream) {
     read(inStream, header.bfType);
-    if (checkType(header.bfType))
+    if (!checkType(header.bfType))
         return 3;
     read(inStream, header.bfSize);
     read(inStream, header.bfReserved1);
