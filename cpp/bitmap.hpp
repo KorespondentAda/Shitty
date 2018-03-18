@@ -34,8 +34,11 @@ public:
     Bitmap & operator=(const Bitmap & bm);
     Bitmap & operator=(Bitmap && bm);
 
-    // Загрузка изображения из файла.
-    // path - путь к изображению.
+    /**
+     * Загружает изображение из файла
+     * \param[in] path - путь к файлу
+     * \return 0, если загрузка прошла успешно
+    */
     int load(const std::string & path);
     // Сохранение изображения в файл.
     // path - путь к изображению.

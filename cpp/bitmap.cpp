@@ -1,5 +1,8 @@
 
 #include "bitmap.hpp"
+#include <cstdio>
+#include <string>
+#include <fstream>
 
 int Bitmap::readHeader(std::ifstream & inStream) {
     read(inStream, header.bfType);
