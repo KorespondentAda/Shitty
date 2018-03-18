@@ -8,6 +8,7 @@
 #include <string>
 #include <fstream>
 
+
 class Bitmap {
 private:
     BITMAPFILEHEADER    header;
@@ -35,20 +36,30 @@ public:
     Bitmap & operator=(Bitmap && bm);
 
     /**
-     * Загружает изображение из файла
+     * \brief Загружает изображение из файла
+     * 
      * \param[in] path - путь к файлу
      * \return 0, если загрузка прошла успешно
     */
     int load(const std::string & path);
-    // Сохранение изображения в файл.
-    // path - путь к изображению.
+    /**
+     * \brief Сохраняет изображение в файл
+     * 
+     * \param[in] path - путь к файлу
+     * \return 0, если сохранение прошло успешно
+    */
     int save(const std::string & path);
-    // Рисование прямоугольника.
-    // (x; y) - координаты верхнего левого угла.
-    // lineWidth - ширина линий.
-    // lineColor - цвет линий.
-    // isSolid - c заливкой или без.
-    // solidColor - если isSolid == true, то цвет заливки, иначе - не использовать.
+    /**
+     * \brief Рисует прямоугольник
+     * 
+     * \param[in] x - первая координата левого-верхнего угла
+     * \param[in] y - вторая координата левого-верхнего угла
+     * \param[in] lineWidth - ширина линий
+     * \param[in] lineColor - цвет линий
+     * \param[in] isSolid - флаг, требуется ли заливка для прямоугольика
+     * \param[in] solidColor - цвет заливки, используется, если isSolid = true
+     * \return 0, если рисование прошло успешно
+    */
     int draw(int x, int y, int lineWidth, int lineColor, int isSolid, int solidColor);
     // Рисование рамки.
     // pattern - узор из набора констант (всякие фракталы, тип)
