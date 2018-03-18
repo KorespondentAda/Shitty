@@ -1,5 +1,5 @@
 
-#include "bitmap.hpp"
+#include "../include/bitmap.hpp"
 
 int Bitmap::readHeader(std::ifstream & inStream) {
     read(inStream, header.bfType);

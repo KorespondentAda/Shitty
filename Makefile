@@ -1,23 +1,22 @@
 
 INCLUDE = ./include/
 CODE 	= ./src/
-CPP 	= ./cpp/
 OBJ 	= main.o bitmap.o bitmapdef.o
-EXE 	= test
+EXE 	= BitmapReader
 CC 		= g++
-CFLAGS 	= -std=c++11 -Wall -c
+CFLAGS 	= -std=c++11 -Wall -O3 -c
 
 all: $(OBJ)
 	$(CC) $(OBJ) -o $(EXE)
 
-bitmapdef.o: $(CPP)bitmapdef.cpp $(CPP)bitmapdef.hpp 
-	$(CC) $(CFLAGS) $(CPP)bitmapdef.cpp
+main.o: $(CODE)main.cpp $(INCLUDE)bitmap.hpp $(INCLUDE)bitmapdef.hpp
+	$(CC) $(CFLAGS) $(CODE)main.cpp
 
-bitmap.o: $(CPP)bitmap.cpp $(CPP)bitmap.hpp $(CPP)bitmapdef.hpp
-	$(CC) $(CFLAGS) $(CPP)bitmap.cpp
+bitmap.o: $(CODE)bitmap.cpp $(INCLUDE)bitmap.hpp $(INCLUDE)bitmapdef.hpp
+	$(CC) $(CFLAGS) $(CODE)bitmap.cpp
 
-main.o: $(CPP)main.cpp $(CPP)bitmap.hpp $(CPP)bitmapdef.hpp
-	$(CC) $(CFLAGS) $(CPP)main.cpp
+bitmapdef.o: $(CODE)bitmapdef.cpp $(INCLUDE)bitmapdef.hpp 
+	$(CC) $(CFLAGS) $(CODE)bitmapdef.cpp
 
 clean:
 	rm $(OBJ) $(EXE)

@@ -1,0 +1,2 @@
+
+#include "../include/bitmapdef.hpp"

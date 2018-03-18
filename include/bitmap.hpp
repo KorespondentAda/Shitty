@@ -8,7 +8,6 @@
 #include <string>
 #include <fstream>
 
-
 class Bitmap {
 private:
     BITMAPFILEHEADER    header;
@@ -34,7 +33,6 @@ public:
 
     Bitmap & operator=(const Bitmap & bm);
     Bitmap & operator=(Bitmap && bm);
-
     /**
      * \brief Загружает изображение из файла
      * 
@@ -61,16 +59,25 @@ public:
      * \return 0, если рисование прошло успешно
     */
     int draw(int x, int y, int lineWidth, int lineColor, int isSolid, int solidColor);
-    // Рисование рамки.
-    // pattern - узор из набора констант (всякие фракталы, тип)
-    // color - цвет рамки.
-    // width - ширина рамки.
+    /**
+     * \brief Рисует рамку изображения.
+     * 
+     * \param[in] pattern - узор рамки
+     * \param[in] color - цвет рамки
+     * \param[in] width - ширина рамки
+     * \return 0, если рисование прошло успешно
+    */
     int frame(int pattern, int color, int width);
-    // Поворот части изображения.
-    // (x, y) - координаты верхнего левого угла.
-    // width - длина выбранной части.
-    // height - ширина выбранной части.
-    // angle - угол, кратный 90 градусам.
+    /**
+     * \brief Поворот части изображения.
+     * 
+     * \param[in] x - абсцисса левого-верхнего угла
+     * \param[in] y - ордината левого-верхнего угла
+     * \param[in] width - ширина рамки
+     * \param[in] height - ширина выбранной части
+     * \param[in] angle - угол, кратный 90 градусам
+     * \return 0, если поворот прошёл успешно
+    */
     int flip(int x, int y, int width, int height, int angle);
 
     ~Bitmap();

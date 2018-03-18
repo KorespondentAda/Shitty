@@ -1,5 +1,5 @@
 
-#include "bitmap.hpp"
+#include "../include/bitmap.hpp"
 
 #define IMAGEPATH "../img/img10.bmp"
 
