@@ -23,6 +23,7 @@ private:
     int writePictur(std::ofstream & outStream);
 
     int checkType();
+    int linePadding();
     BYTE bitExtract(DWORD byte, DWORD mask);
 
 public:
