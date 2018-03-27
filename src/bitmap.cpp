@@ -1,13 +1,15 @@
 
 #include "../include/bitmap.hpp"
 
+#include <cstdint>
+
 Bitmap::Bitmap() {
 }
 
 int Bitmap::readHeader(std::ifstream & inStream) {
     read(inStream, header.bfType);
     if (!checkType())
-        return 3;
+        throw std::runtime_error("Unsupported bfType");
     read(inStream, header.bfSize);
     read(inStream, header.bfReserved1);
     read(inStream, header.bfReserved2);
@@ -54,22 +56,26 @@ int Bitmap::readInform(std::ifstream & inStream) {
 }
 
 int Bitmap::readPictur(std::ifstream & inStream) {
-    /*
     pictur = new RGBQUAD *[inform.biHeight];
     for (int i = 0; i < inform.biHeight; ++i) 
         pictur[i] = new RGBQUAD[inform.biWidth];
-    */
-    /* To debug
-    WORD bytesPerPixel = inform.biBitCount >> 3;
-    BYTE buffer[bytesPerPixel];
-    for (int i = 0; i < inform.biHeight; ++i) 
+    if (inform.biBitCount != 32) 
+        throw std::runtime_error("Unsupported biBitCount");
+    
+    // определение размера отступа в конце каждой строки
+    int linePadding = ((inform.biWidth * (inform.biBitCount / 8)) % 4) & 3;
+
+    DWORD buffer;
+    for (int i = 0; i < inform.biHeight; ++i) {
         for (int j = 0; j < inform.biWidth; ++j) {
             read(inStream, buffer);
-            image[i][j].rgbBlue     = bitExtract(buffer, inform.biRedMask);
-            image[i][j].rgbGreen    = bitExtract(buffer, inform.biGreenMask);
-            image[i][j].rgbRed      = bitExtract(buffer, inform.biBlueMask);
-            image[i][j].rgbReserved = bitExtract(buffer, inform.biAlphaMask);
-        }*/
+            pictur[i][j].rgbBlue     = bitExtract(buffer, inform.biRedMask);
+            pictur[i][j].rgbGreen    = bitExtract(buffer, inform.biGreenMask);
+            pictur[i][j].rgbRed      = bitExtract(buffer, inform.biBlueMask);
+            pictur[i][j].rgbReserved = bitExtract(buffer, inform.biAlphaMask);
+        }
+        inStream.seekg(linePadding, std::ios_base::cur);
+    }   
     return 0;
 }
 
@@ -128,7 +134,7 @@ int Bitmap::checkType() {
     return (header.bfType == 0x4D42 || header.bfType == 0x424D);
 }
 
-BYTE Bitmap::bitExtract(BYTE byte, DWORD mask) {
+BYTE Bitmap::bitExtract(DWORD byte, DWORD mask) {
     if (mask == 0) {
         return 0;
     } 
@@ -145,11 +151,11 @@ int Bitmap::load(const std::string & path) {
     
     std::ifstream inStream(path, std::ifstream::binary);
     if (!inStream.is_open())
-        return 1;
+        throw std::runtime_error("Can not open file: " + path);
     
     readHeader(inStream);
     readInform(inStream);
-    //readPictur(inStream);
+    readPictur(inStream);
 
     inStream.close();
     
@@ -160,7 +166,7 @@ int Bitmap::save(const std::string & path) {
 
     std::ofstream outStream(path, std::ofstream::binary);
     if (!outStream.is_open())
-        return 1;
+         throw std::runtime_error("Can not open file: " + path);
     
     writeHeader(outStream);
     writeInform(outStream);
