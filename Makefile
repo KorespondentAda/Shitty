@@ -2,11 +2,12 @@
 INCLUDE = ./include/
 CODE 	= ./src/
 OBJ 	= main.o bitmap.o bitmapdef.o
-EXE 	= BitmapReader
+EXE 	= LameBitmapReader
 CC 		= g++
-CFLAGS 	= -std=c++11 -Wall -O3 -c
+CFLAGS 	= -std=c++11 -Wall -c
 
 #$(CXX) is default registred C++ compiler, maybe change on this?
+# nope.
 all: $(OBJ)
 	$(CXX) $(OBJ) -o $(EXE)
 

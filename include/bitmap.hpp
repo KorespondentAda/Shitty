@@ -12,7 +12,7 @@ class Bitmap {
 private:
     BITMAPFILEHEADER    header;
     BITMAPINFO          inform;
-    RGBQUAD **          image;
+    RGBQUAD **          pictur;
     
     int readHeader(std::ifstream & inStream);
     int readInform(std::ifstream & inStream);
@@ -22,7 +22,7 @@ private:
     int writeInform(std::ofstream & outStream);
     int writePictur(std::ofstream & outStream);
 
-    int checkType(WORD bfType);
+    int checkType();
     BYTE bitExtract(BYTE byte, DWORD mask);
 
 public:
@@ -84,8 +84,12 @@ public:
 };
 
 template <typename Type>
-void read(std::ifstream & inStream, Type & result) {
-    inStream.read(reinterpret_cast<char*>(&result), sizeof(result));
+void read(std::ifstream & inStream, Type & value) {
+    inStream.read(reinterpret_cast<char *>(&value), sizeof(value));
 }
  
+template <typename Type>
+void write(std::ofstream & outStream, Type & value) {
+    outStream.write(reinterpret_cast<char *>(&value), sizeof(value));
+}
 #endif // __BITMAP_HPP__
