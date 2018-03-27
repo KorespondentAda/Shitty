@@ -2,8 +2,11 @@
 #include "../include/bitmap.hpp"
 
 #include <cstdint>
+#include <cstring>
 
 Bitmap::Bitmap() {
+    memset(&header, 0x00, sizeof(BITMAPFILEHEADER));
+    memset(&inform, 0x00, sizeof(BITMAPINFO));
 }
 
 int Bitmap::readHeader(std::ifstream & inStream) {
@@ -59,22 +62,25 @@ int Bitmap::readPictur(std::ifstream & inStream) {
     pictur = new RGBQUAD *[inform.biHeight];
     for (int i = 0; i < inform.biHeight; ++i) 
         pictur[i] = new RGBQUAD[inform.biWidth];
-    if (inform.biBitCount != 32) 
+    if (inform.biBitCount != 8) 
         throw std::runtime_error("Unsupported biBitCount");
     
     // определение размера отступа в конце каждой строки
     int linePadding = ((inform.biWidth * (inform.biBitCount / 8)) % 4) & 3;
 
-    DWORD buffer;
+    BYTE buffer;
     for (int i = 0; i < inform.biHeight; ++i) {
         for (int j = 0; j < inform.biWidth; ++j) {
             read(inStream, buffer);
+            pictur[i][j].rgbBlue = pictur[i][j].rgbGreen = pictur[i][j].rgbRed = pictur[i][j].rgbReserved = buffer;
+            /*
             pictur[i][j].rgbBlue     = bitExtract(buffer, inform.biRedMask);
             pictur[i][j].rgbGreen    = bitExtract(buffer, inform.biGreenMask);
             pictur[i][j].rgbRed      = bitExtract(buffer, inform.biBlueMask);
             pictur[i][j].rgbReserved = bitExtract(buffer, inform.biAlphaMask);
+            */
         }
-        inStream.seekg(linePadding, std::ios_base::cur);
+        // inStream.seekg(linePadding, std::ios_base::cur);
     }   
     return 0;
 }
@@ -127,6 +133,10 @@ int Bitmap::writeInform(std::ofstream & outStream) {
 }
 
 int Bitmap::writePictur(std::ofstream & outStream) {
+    
+    for (int i = 0; i < inform.biHeight; ++i)
+        for (int j = 0; j < inform.biWidth; ++j)
+            write(outStream, pictur[i][j].rgbBlue);
     return 0;
 }
 
