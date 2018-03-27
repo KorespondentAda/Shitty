@@ -11,14 +11,14 @@ CFLAGS 	= -std=c++11 -Wall -c
 all: $(OBJ)
 	$(CXX) $(OBJ) -o $(EXE)
 
-main.o: $(CODE)main.cpp $(INCLUDE)bitmap.hpp $(INCLUDE)bitmapdef.hpp
+main.o: $(CODE)main.cpp $(INCLUDE)bitmap.hpp $(INCLUDE)bitmapdef.h
 	$(CXX) $(CFLAGS) $(CODE)main.cpp
 
-bitmap.o: $(CODE)bitmap.cpp $(INCLUDE)bitmap.hpp $(INCLUDE)bitmapdef.hpp
+bitmap.o: $(CODE)bitmap.cpp $(INCLUDE)bitmap.hpp $(INCLUDE)bitmapdef.h
 	$(CXX) $(CFLAGS) $(CODE)bitmap.cpp
 
-bitmapdef.o: $(CODE)bitmapdef.cpp $(INCLUDE)bitmapdef.hpp 
-	$(CXX) $(CFLAGS) $(CODE)bitmapdef.cpp
+bitmapdef.o: $(CODE)bitmapdef.c $(INCLUDE)bitmapdef.h 
+	gcc -c $(CODE)bitmapdef.c
 
 clean:
 	rm $(OBJ) $(EXE)

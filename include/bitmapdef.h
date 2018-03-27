@@ -1,8 +1,8 @@
 
-#ifndef __BITMAPDEF_HPP__
-#define __BITMAPDEF_HPP__
+#ifndef __BITMAPDEF_H__
+#define __BITMAPDEF_H__
 
-#include <cstdint>
+#include <stdint.h>
 
 // Compression
 #define BI_RGB              0
@@ -27,27 +27,27 @@ typedef int32_t     LONG;
 typedef LONG        FXPT2DOT30;
 typedef LONG        FXPT16DOT16;
 
-struct CIEXYZ {
+typedef struct tagCIEXYZ {
   FXPT2DOT30 ciexyzX;
   FXPT2DOT30 ciexyzY;
   FXPT2DOT30 ciexyzZ;
-};
+} CIEXYZ;
 
-struct CIEXYZTRIPLE {
+typedef struct tagCIEXYZTRIPLE {
   CIEXYZ ciexyzRed;
   CIEXYZ ciexyzGreen;
   CIEXYZ ciexyzBlue;
-};
+} CIEXYZTRIPLE;
 
-struct BITMAPFILEHEADER {
+typedef struct tagBITMAPFILEHEADER {
     WORD    bfType;
     DWORD   bfSize;
     WORD    bfReserved1;
     WORD    bfReserved2;
     DWORD   bfOffBits;
-};
+} BITMAPFILEHEADER;
 
-struct BITMAPINFO {
+typedef struct tagBITMAPINFO {
     DWORD   biSize;
     LONG    biWidth;
     LONG    biHeight;
@@ -75,19 +75,19 @@ struct BITMAPINFO {
     DWORD   biProfileData;
     DWORD   biProfileSize;
     DWORD   biReserved;
-};
+} BITMAPINFO;
 
-struct RGBQUAD {
+typedef struct tagRGBQUAD {
     BYTE rgbBlue;
     BYTE rgbGreen;
     BYTE rgbRed;
     BYTE rgbReserved;
-};
+} RGBQUAD;
 
-struct RGBTRIPLE {
+typedef struct tagRGBTRIPLE {
     BYTE rgbtBlue;
     BYTE rgbtGreen;
     BYTE rgbtRed;
-};
+} RGBTRIPLE;
 
 #endif

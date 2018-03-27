@@ -54,10 +54,11 @@ int Bitmap::readInform(std::ifstream & inStream) {
 }
 
 int Bitmap::readPictur(std::ifstream & inStream) {
+    /*
     pictur = new RGBQUAD *[inform.biHeight];
     for (int i = 0; i < inform.biHeight; ++i) 
         pictur[i] = new RGBQUAD[inform.biWidth];
-    
+    */
     /* To debug
     WORD bytesPerPixel = inform.biBitCount >> 3;
     BYTE buffer[bytesPerPixel];

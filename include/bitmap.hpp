@@ -2,7 +2,7 @@
 #ifndef __BITMAP_HPP__
 #define __BITMAP_HPP__
 
-#include "bitmapdef.hpp"
+#include "bitmapdef.h"
 
 #include <cstdio>
 #include <string>
@@ -89,7 +89,8 @@ void read(std::ifstream & inStream, Type & value) {
 }
  
 template <typename Type>
-void write(std::ofstream & outStream, Type & value) {
+void write(std::ofstream & outStream, Type value) {
     outStream.write(reinterpret_cast<char *>(&value), sizeof(value));
 }
+
 #endif // __BITMAP_HPP__
