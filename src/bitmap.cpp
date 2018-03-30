@@ -58,16 +58,29 @@ int Bitmap::readInform(std::ifstream & inStream) {
     return 0;
 }
 
-int Bitmap::readPictur(std::ifstream & inStream) {
+int Bitmap::readPalette(std::ifstream & inStream) {
+    
+    int _paletteSize = paletteSize();
+    palette = new RGBQUAD[_paletteSize];
+    
+    for (int i = 0; i < _paletteSize / 4; ++i) {
+        read(inStream, palette[i].rgbBlue);
+        read(inStream, palette[i].rgbGreen);
+        read(inStream, palette[i].rgbRed);
+        read(inStream, palette[i].rgbReserved);
+    }
+
+    return 0;
+}
+
+int Bitmap::readPicture(std::ifstream & inStream) {
     pictur = new RGBQUAD *[inform.biHeight];
     for (int i = 0; i < inform.biHeight; ++i) 
         pictur[i] = new RGBQUAD[inform.biWidth];
     if (inform.biBitCount != 8) 
         throw std::runtime_error("Unsupported biBitCount");
     
-    inStream.seekg(header.bfOffBits);
     int padding = linePadding();
-
     BYTE buffer;
     for (int i = 0; i < inform.biHeight; ++i) {
         for (int j = 0; j < inform.biWidth; ++j) {
@@ -132,14 +145,30 @@ int Bitmap::writeInform(std::ofstream & outStream) {
     return 0;
 }
 
-int Bitmap::writePictur(std::ofstream & outStream) {
+int Bitmap::writePalette(std::ofstream & outStream) {
+    
+    int _paletteSize = paletteSize();
+    
+    for (int i = 0; i < _paletteSize / 4; ++i) {
+        write(outStream, palette[i].rgbBlue);
+        write(outStream, palette[i].rgbGreen);
+        write(outStream, palette[i].rgbRed);
+        // If not CORE-V
+        write(outStream, palette[i].rgbReserved);
+    }
+
+    return 0;
+}
+
+int Bitmap::writePicture(std::ofstream & outStream) {
     int padding = linePadding();
     
     for (int i = 0; i < inform.biHeight; ++i) {
         for (int j = 0; j < inform.biWidth; ++j)
             write(outStream, pictur[i][j].rgbBlue);
-        for (int j = 0; j < padding; ++j);
+        for (int j = 0; j < padding; ++j)
             write(outStream, (BYTE)0x00);
+        
     }
     return 0;
 }
@@ -151,6 +180,11 @@ int Bitmap::checkType() {
 int Bitmap::linePadding() {
     // maybe we can do it faster?
     return ((4 - ((inform.biWidth * (inform.biBitCount >> 3)) % 4)) & 3);
+}
+
+int Bitmap::paletteSize() {
+    return (header.bfOffBits - inform.biSize - 14);
+    // return (inform.biClrUsed * 4);
 }
 
 BYTE Bitmap::bitExtract(DWORD byte, DWORD mask) {
@@ -174,7 +208,8 @@ int Bitmap::load(const std::string & path) {
     
     readHeader(inStream);
     readInform(inStream);
-    readPictur(inStream);
+    readPalette(inStream);
+    readPicture(inStream);
 
     inStream.close();
     
@@ -189,7 +224,8 @@ int Bitmap::save(const std::string & path) {
 
     writeHeader(outStream);
     writeInform(outStream);
-    writePictur(outStream);
+    writePalette(outStream);
+    writePicture(outStream);
 
     outStream.close();
     
@@ -213,4 +249,5 @@ void Bitmap::test() {
     printf("Width       = %d\n", inform.biWidth);
     printf("BitCount    = %d\n", inform.biBitCount);
     printf("Padding     = %d\n", linePadding());
+    printf("Palette     = %d\n", paletteSize());
 }

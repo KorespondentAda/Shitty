@@ -13,17 +13,22 @@ private:
     BITMAPFILEHEADER    header;
     BITMAPINFO          inform;
     RGBQUAD **          pictur;
-    
+    RGBQUAD *           palette;
+
     int readHeader(std::ifstream & inStream);
     int readInform(std::ifstream & inStream);
-    int readPictur(std::ifstream & inStream);
-
+    int readPalette(std::ifstream & inStream);
+    int readPicture(std::ifstream & inStream);
+    
     int writeHeader(std::ofstream & outStream);
     int writeInform(std::ofstream & outStream);
-    int writePictur(std::ofstream & outStream);
+    int writePalette(std::ofstream & outStream);
+    int writePicture(std::ofstream & outStream);
 
     int checkType();
     int linePadding();
+    int paletteSize();
+
     BYTE bitExtract(DWORD byte, DWORD mask);
 
 public:
