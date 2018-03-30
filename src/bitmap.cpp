@@ -65,8 +65,7 @@ int Bitmap::readPictur(std::ifstream & inStream) {
     if (inform.biBitCount != 8) 
         throw std::runtime_error("Unsupported biBitCount");
     
-    inStream.seekg(header.bfOffBits * 8);
-    // определение размера отступа в конце каждой строки
+    inStream.seekg(header.bfOffBits);
     int padding = linePadding();
 
     BYTE buffer;
@@ -81,7 +80,7 @@ int Bitmap::readPictur(std::ifstream & inStream) {
             pictur[i][j].rgbReserved = bitExtract(buffer, inform.biAlphaMask);
             */
         }
-        inStream.seekg(padding * 8, std::ios_base::cur);
+        inStream.seekg(padding, std::ios_base::cur);
     }   
     return 0;
 }
@@ -135,11 +134,12 @@ int Bitmap::writeInform(std::ofstream & outStream) {
 
 int Bitmap::writePictur(std::ofstream & outStream) {
     int padding = linePadding();
+    
     for (int i = 0; i < inform.biHeight; ++i) {
         for (int j = 0; j < inform.biWidth; ++j)
             write(outStream, pictur[i][j].rgbBlue);
         for (int j = 0; j < padding; ++j);
-            write(outStream, 0);
+            write(outStream, (BYTE)0x00);
     }
     return 0;
 }
@@ -149,8 +149,8 @@ int Bitmap::checkType() {
 }
 
 int Bitmap::linePadding() {
-    int padd = (inform.biWidth * inform.biBitCount / 8) % 4;
-    return (padd ? 4 - padd : padd);
+    // maybe we can do it faster?
+    return ((4 - ((inform.biWidth * (inform.biBitCount >> 3)) % 4)) & 3);
 }
 
 BYTE Bitmap::bitExtract(DWORD byte, DWORD mask) {
@@ -182,11 +182,11 @@ int Bitmap::load(const std::string & path) {
 }
 
 int Bitmap::save(const std::string & path) {
-
+    
     std::ofstream outStream(path, std::ofstream::binary);
     if (!outStream.is_open())
          throw std::runtime_error("Can not open file: " + path);
-    
+
     writeHeader(outStream);
     writeInform(outStream);
     writePictur(outStream);
@@ -204,4 +204,13 @@ Bitmap::~Bitmap() {
         delete[] pictur[i];
     delete[] pictur;
     */
+}
+
+
+void Bitmap::test() {
+    printf("Size        = %d\n", inform.biSize);
+    printf("OffBits     = %d\n", header.bfOffBits);
+    printf("Width       = %d\n", inform.biWidth);
+    printf("BitCount    = %d\n", inform.biBitCount);
+    printf("Padding     = %d\n", linePadding());
 }

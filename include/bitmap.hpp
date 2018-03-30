@@ -81,6 +81,8 @@ public:
     */
     int flip(int x, int y, int width, int height, int angle);
 
+    void test();
+    
     ~Bitmap();
 };
 
