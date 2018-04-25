@@ -12,8 +12,8 @@ class Bitmap {
 private:
     BITMAPFILEHEADER    header;
     BITMAPINFO          inform;
-    RGBQUAD **          pictur;
-    RGBQUAD *           palette;
+    RGBTRIPLE **        picture;
+    RGBTRIPLE *         palette;
 
     int readHeader(std::ifstream & inStream);
     int readInform(std::ifstream & inStream);
@@ -39,63 +39,39 @@ public:
 
     Bitmap & operator=(const Bitmap & bm);
     Bitmap & operator=(Bitmap && bm);
-    /**
-     * \brief Загружает изображение из файла
-     * 
-     * \param[in] path - путь к файлу
-     * \return 0, если загрузка прошла успешно
-    */
+    
     int load(const std::string & path);
-    /**
-     * \brief Сохраняет изображение в файл
-     * 
-     * \param[in] path - путь к файлу
-     * \return 0, если сохранение прошло успешно
-    */
     int save(const std::string & path);
-    /**
-     * \brief Рисует прямоугольник
-     * 
-     * \param[in] x - первая координата левого-верхнего угла
-     * \param[in] y - вторая координата левого-верхнего угла
-     * \param[in] lineWidth - ширина линий
-     * \param[in] lineColor - цвет линий
-     * \param[in] isSolid - флаг, требуется ли заливка для прямоугольика
-     * \param[in] solidColor - цвет заливки, используется, если isSolid = true
-     * \return 0, если рисование прошло успешно
-    */
+    
+    int draw_pixel(LONG x, LONG y, RGBTRIPLE color);
+    int draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color);
+
     int draw(int x, int y, int lineWidth, int lineColor, int isSolid, int solidColor);
-    /**
-     * \brief Рисует рамку изображения.
-     * 
-     * \param[in] pattern - узор рамки
-     * \param[in] color - цвет рамки
-     * \param[in] width - ширина рамки
-     * \return 0, если рисование прошло успешно
-    */
     int frame(int pattern, int color, int width);
-    /**
-     * \brief Поворот части изображения.
-     * 
-     * \param[in] x - абсцисса левого-верхнего угла
-     * \param[in] y - ордината левого-верхнего угла
-     * \param[in] width - ширина рамки
-     * \param[in] height - ширина выбранной части
-     * \param[in] angle - угол, кратный 90 градусам
-     * \return 0, если поворот прошёл успешно
-    */
-    int flip(int x, int y, int width, int height, int angle);
+    int flip(int x, int y, int dx, int dy, int angle);
+    int flip();
+    
+    void print_info();
 
     void test();
     
     ~Bitmap();
 };
 
+template <typename Type, size_t size>
+void read(std::ifstream & inStream, Type & value) {
+    inStream.read(reinterpret_cast<char *>(&value), size);
+}
+template <typename Type, size_t size>
+void write(std::ofstream & outStream, Type value) {
+    outStream.write(reinterpret_cast<char *>(&value), size);
+}
+
 template <typename Type>
 void read(std::ifstream & inStream, Type & value) {
     inStream.read(reinterpret_cast<char *>(&value), sizeof(value));
 }
- 
+
 template <typename Type>
 void write(std::ofstream & outStream, Type value) {
     outStream.write(reinterpret_cast<char *>(&value), sizeof(value));

@@ -59,39 +59,28 @@ int Bitmap::readInform(std::ifstream & inStream) {
 }
 
 int Bitmap::readPalette(std::ifstream & inStream) {
-    
     int _paletteSize = paletteSize();
-    palette = new RGBQUAD[_paletteSize];
-    
+    palette = new RGBTRIPLE[_paletteSize];
     for (int i = 0; i < _paletteSize / 4; ++i) {
-        read(inStream, palette[i].rgbBlue);
-        read(inStream, palette[i].rgbGreen);
-        read(inStream, palette[i].rgbRed);
-        read(inStream, palette[i].rgbReserved);
+        read(inStream, palette[i].rgbtBlue);
+        read(inStream, palette[i].rgbtGreen);
+        read(inStream, palette[i].rgbtRed);
     }
-
     return 0;
 }
 
 int Bitmap::readPicture(std::ifstream & inStream) {
-    pictur = new RGBQUAD *[inform.biHeight];
+    if (inform.biBitCount != 24)
+        std::runtime_error("Unsupported biBitCount");
+    picture = new RGBTRIPLE *[inform.biHeight];
     for (int i = 0; i < inform.biHeight; ++i) 
-        pictur[i] = new RGBQUAD[inform.biWidth];
-    if (inform.biBitCount != 8) 
-        throw std::runtime_error("Unsupported biBitCount");
-    
+        picture[i] = new RGBTRIPLE[inform.biWidth];
     int padding = linePadding();
-    BYTE buffer;
     for (int i = 0; i < inform.biHeight; ++i) {
         for (int j = 0; j < inform.biWidth; ++j) {
-            read(inStream, buffer);
-            pictur[i][j].rgbBlue = pictur[i][j].rgbGreen = pictur[i][j].rgbRed = pictur[i][j].rgbReserved = buffer;
-            /*
-            pictur[i][j].rgbBlue     = bitExtract(buffer, inform.biRedMask);
-            pictur[i][j].rgbGreen    = bitExtract(buffer, inform.biGreenMask);
-            pictur[i][j].rgbRed      = bitExtract(buffer, inform.biBlueMask);
-            pictur[i][j].rgbReserved = bitExtract(buffer, inform.biAlphaMask);
-            */
+            read(inStream, picture[i][j].rgbtBlue);
+            read(inStream, picture[i][j].rgbtGreen);
+            read(inStream, picture[i][j].rgbtRed);
         }
         inStream.seekg(padding, std::ios_base::cur);
     }   
@@ -150,11 +139,9 @@ int Bitmap::writePalette(std::ofstream & outStream) {
     int _paletteSize = paletteSize();
     
     for (int i = 0; i < _paletteSize / 4; ++i) {
-        write(outStream, palette[i].rgbBlue);
-        write(outStream, palette[i].rgbGreen);
-        write(outStream, palette[i].rgbRed);
-        // If not CORE-V
-        write(outStream, palette[i].rgbReserved);
+        write(outStream, palette[i].rgbtBlue);
+        write(outStream, palette[i].rgbtGreen);
+        write(outStream, palette[i].rgbtRed);
     }
 
     return 0;
@@ -164,11 +151,13 @@ int Bitmap::writePicture(std::ofstream & outStream) {
     int padding = linePadding();
     
     for (int i = 0; i < inform.biHeight; ++i) {
-        for (int j = 0; j < inform.biWidth; ++j)
-            write(outStream, pictur[i][j].rgbBlue);
+        for (int j = 0; j < inform.biWidth; ++j) {
+            write(outStream, picture[i][j].rgbtBlue);
+            write(outStream, picture[i][j].rgbtGreen);
+            write(outStream, picture[i][j].rgbtRed);
+        }
         for (int j = 0; j < padding; ++j)
-            write(outStream, (BYTE)0x00);
-        
+            write(outStream, BYTE(0x00));
     }
     return 0;
 }
@@ -191,7 +180,7 @@ BYTE Bitmap::bitExtract(DWORD byte, DWORD mask) {
     if (mask == 0) {
         return 0;
     } 
-    DWORD   maskBuffer = mask;
+    DWORD   maskBuffer  = mask;
     int     maskPadding = 0;
     while (!(maskBuffer & 1)) {
         maskBuffer >>= 1;
@@ -232,19 +221,51 @@ int Bitmap::save(const std::string & path) {
     return 0;
 }
 
+int Bitmap::draw_pixel(LONG x, LONG y, RGBTRIPLE color) {
+    if (x < 0 || y < 0 || x >= inform.biWidth || y >= inform.biHeight)
+        throw std::runtime_error("point is not inside of picture");
+    picture[inform.biHeight - y - 1][x] = color;
+}
+
+int Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
+    LONG dx = x2 - x1;
+    LONG dy = y2 - y1;
+    double a = (double)dy / dx;
+    double b = (double)y1 - a * x1;
+    for (LONG x = x1; x <= x2; ++x) {
+        LONG y = a * x + b;
+        draw_pixel(x, y, color);
+    }
+    for (LONG y = y1; y <= y2; ++y) {
+        LONG x = (y - b) / a;
+        draw_pixel(x, y, color);
+    }
+}
+
+void Bitmap::print_info() {
+    printf("< < < Bitmap information > > >\n");
+    printf("Bitmap HEADER:\n");
+    printf("\tbfType        : %d\n", header.bfType);
+    printf("\tbfSize        : %d\n", header.bfSize);
+    printf("\tbfReserved1   : %d\n", header.bfReserved1);
+    printf("\tbfReserved2   : %d\n", header.bfReserved2);
+    printf("\tbfOffBits     : %d\n", header.bfOffBits);
+    printf("Bitmap INFO:\n");
+}
+
 Bitmap::~Bitmap() {
-    /*
-    if (!pictur)
-        return;
-    for (int i = 0; i < inform.biHeight; ++i) 
-        delete[] pictur[i];
-    delete[] pictur;
-    */
+    if (picture) {
+        for (size_t i = 0; i < inform.biHeight; ++i)
+            delete[] picture[i];
+        delete[] picture;
+    }
+    if (palette)
+        delete[] palette;
 }
 
 
 void Bitmap::test() {
-    printf("Size        = %d\n", inform.biSize);
+    printf("Size        = %x\n", inform.biSize);
     printf("OffBits     = %d\n", header.bfOffBits);
     printf("Width       = %d\n", inform.biWidth);
     printf("BitCount    = %d\n", inform.biBitCount);
