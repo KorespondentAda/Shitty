@@ -43,13 +43,13 @@ public:
     int load(const std::string & path);
     int save(const std::string & path);
     
-    int draw_pixel(LONG x, LONG y, RGBTRIPLE color);
-    int draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color);
-    
+    void draw_pixel(LONG x, LONG y, RGBTRIPLE color);
+    void draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color);
+	void flip();
+
     int draw(int x, int y, int lineWidth, int lineColor, int isSolid, int solidColor);
     int frame(int pattern, int color, int width);
     int flip(int x, int y, int dx, int dy, int angle);
-    int flip();
     
     void print_info();
 

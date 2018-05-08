@@ -13,7 +13,8 @@ int main(int argc, char * argv[]) {
             image.draw_pixel(5 + i, 5 + j, color);
     
     image.draw_line(5, 5, 100, 50, color);
-    
+    image.flip();
+
     printf("%d %d %d\n", color.rgbtBlue, color.rgbtGreen, color.rgbtRed);
     image.save("result.bmp");
     return 0;

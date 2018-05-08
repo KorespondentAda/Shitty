@@ -221,13 +221,13 @@ int Bitmap::save(const std::string & path) {
     return 0;
 }
 
-int Bitmap::draw_pixel(LONG x, LONG y, RGBTRIPLE color) {
+void Bitmap::draw_pixel(LONG x, LONG y, RGBTRIPLE color) {
     if (x < 0 || y < 0 || x >= inform.biWidth || y >= inform.biHeight)
         throw std::runtime_error("point is not inside of picture");
     picture[inform.biHeight - y - 1][x] = color;
 }
 
-int Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
+void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
     LONG dx = x2 - x1;
     LONG dy = y2 - y1;
     double a = (double)dy / dx;
@@ -242,6 +242,22 @@ int Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
     }
 }
 
+void Bitmap::flip() {
+	RGBTRIPLE ** newPicture = new RGBTRIPLE *[inform.biWidth];
+	for (LONG index = 0; index < inform.biWidth; ++index) {
+		newPicture[index] = new RGBTRIPLE[inform.biHeight];	
+	}
+	for (LONG i = 0; i < inform.biWidth; ++i) 
+		for (LONG j = 0; j < inform.biHeight; ++j)
+			newPicture[i][j] = picture[inform.biHeight - j - 1][inform.biWidth - i - 1];		
+	for (LONG index = 0; index < inform.biHeight; ++index)
+		delete[] picture[index];
+	delete[] picture;
+	picture = newPicture;
+	LONG temp = inform.biWidth;
+	inform.biWidth = inform.biHeight;
+	inform.biHeight = temp;
+}
 
 void Bitmap::print_info() {
     printf("< < < Bitmap information > > >\n");
@@ -256,7 +272,7 @@ void Bitmap::print_info() {
 
 Bitmap::~Bitmap() {
     if (picture) {
-        for (size_t i = 0; i < inform.biHeight; ++i)
+        for (LONG i = 0; i < inform.biHeight; ++i)
             delete[] picture[i];
         delete[] picture;
     }
