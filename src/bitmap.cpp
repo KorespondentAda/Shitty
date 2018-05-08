@@ -242,6 +242,7 @@ int Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
     }
 }
 
+
 void Bitmap::print_info() {
     printf("< < < Bitmap information > > >\n");
     printf("Bitmap HEADER:\n");

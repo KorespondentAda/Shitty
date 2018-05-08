@@ -45,7 +45,7 @@ public:
     
     int draw_pixel(LONG x, LONG y, RGBTRIPLE color);
     int draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color);
-
+    
     int draw(int x, int y, int lineWidth, int lineColor, int isSolid, int solidColor);
     int frame(int pattern, int color, int width);
     int flip(int x, int y, int dx, int dy, int angle);
