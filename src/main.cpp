@@ -16,18 +16,31 @@ const RGBTRIPLE BROWN = { 0, 0, 127 };
 int main(/*int argc, char * argv[]*/) {
     Bitmap image;
     image.load("img/img08.bmp");
-    RGBTRIPLE color = { 0, 0, 255 };
-    for (int i = 0; i < 5; ++i)
-        for (int j = 0; j < 5; ++j)
-            image.draw_pixel(5 + i, 5 + j, color);
-    image.draw_pixel(100, 100, PINK, 30);
-    image.draw_line(5, 5, 100, 50, RED);
-    image.draw_line(8, 20, 100, 50, YELLOW, 7);
-    image.draw_rectangle(15, 15, 100, 50, RED, 3);
-    printf("%d %d %d\n", color.rgbtBlue, color.rgbtGreen, color.rgbtRed);
-    image.flip();
-    image.draw_ver_line(-10, 100, 30, BROWN, 4);
-    image.draw_hor_line(10, 500, 90, SKY, 2);
+
+    //image.draw_pixel(100, 100, 30);
+    /*
+    image.set_pen_color(RED);
+    image.draw_line(5, 5, 100, 50);
+    image.set_pen_color(YELLOW);
+    image.draw_line(8, 20, 100, 50, 7);
+    image.set_pen_color(RED);
+    image.draw_rectangle(15, 15, 100, 50, 3);
+    //image.flip();
+    image.set_pen_color(BROWN);
+    image.draw_ver_line(-10, 100, 30, 4);
+    image.set_pen_color(SKY);
+    image.draw_hor_line(10, 500, 90, 2);
+    image.set_pen_color(BLUE);
+    image.set_brush_color(YELLOW);
+    image.draw_rectangle(-70, 70, 100, 120, 5, true);
+    */
+
+    image.set_pen_color(PINK);
+    image.draw_pixel(60, 40, 10);
+    image.draw_pixel(140, 120, 10);
+    
+    image.flip(60, 40, 140, 120);
+    
     image.save("result.bmp");
     return 0;
 }

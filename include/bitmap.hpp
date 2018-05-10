@@ -14,8 +14,8 @@ private:
     BITMAPINFO          inform;
     RGBTRIPLE **        picture;
     RGBTRIPLE *         palette;
-    RGBTRIPLE color_pen;
-    RGBTRIPLE color_brush;
+    RGBTRIPLE pen_color;
+    RGBTRIPLE brush_color;
 
     int readHeader(std::ifstream & inStream);
     int readInform(std::ifstream & inStream);
@@ -33,10 +33,10 @@ private:
 
     BYTE bitExtract(DWORD byte, DWORD mask);
 public:
-    void draw_hor_line(LONG x1, LONG x2, LONG y, RGBTRIPLE color);
-    void draw_ver_line(LONG y1, LONG y2, LONG x, RGBTRIPLE color);
-    void draw_hor_line(LONG x1, LONG x2, LONG y, RGBTRIPLE color, LONG width);
-    void draw_ver_line(LONG y1, LONG y2, LONG x, RGBTRIPLE color, LONG width);
+    void draw_hor_line(LONG x1, LONG x2, LONG y);
+    void draw_ver_line(LONG y1, LONG y2, LONG x);
+    void draw_hor_line(LONG x1, LONG x2, LONG y, LONG width);
+    void draw_ver_line(LONG y1, LONG y2, LONG x, LONG width);
 public:
     Bitmap();
 
@@ -49,20 +49,24 @@ public:
     int load(const std::string & path);
     int save(const std::string & path);
     
-    void draw_pixel(LONG x, LONG y, RGBTRIPLE color);
-    void draw_pixel(LONG x, LONG y, RGBTRIPLE color, LONG r);
+    void set_pen_color(RGBTRIPLE color);
+    void set_brush_color(RGBTRIPLE color);
 
-    void draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color);
-    void draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color, LONG r);
+    void draw_pixel(LONG x, LONG y);
+    void draw_pixel(LONG x, LONG y, LONG r);
 
-    void draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color);
-    void draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color, LONG width);
+    void draw_line(LONG x1, LONG y1, LONG x2, LONG y2);
+    void draw_line(LONG x1, LONG y1, LONG x2, LONG y2, LONG width);
 
-	void flip();
+    void draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2);
+    void draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, LONG width);
+    void draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, LONG width, bool filled);
+    void draw_fill_rectangle(LONG x1, LONG y1, LONG x2, LONG y2);
+	
+    void flip();
+    void flip(LONG x1, LONG y1, LONG x2, LONG y2);
 
-    int draw(int x, int y, int lineWidth, int lineColor, int isSolid, int solidColor);
     int frame(int pattern, int color, int width);
-    int flip(int x, int y, int dx, int dy, int angle);
     
     void print_info();
 

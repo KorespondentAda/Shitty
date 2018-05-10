@@ -7,6 +7,8 @@
 Bitmap::Bitmap() {
     memset(&header, 0x00, sizeof(BITMAPFILEHEADER));
     memset(&inform, 0x00, sizeof(BITMAPINFO));
+    pen_color = { 0, 0, 0 }; // black
+    brush_color = { 255, 255, 255 }; // white
 }
 
 int Bitmap::readHeader(std::ifstream & inStream) {
@@ -221,14 +223,21 @@ int Bitmap::save(const std::string & path) {
     return 0;
 }
 
-void Bitmap::draw_pixel(LONG x, LONG y, RGBTRIPLE color) {
-    if (x < 0 || y < 0 || x >= inform.biWidth || y >= inform.biHeight)
-        return;
-    // throw std::runtime_error("point is not inside of picture");
-    picture[inform.biHeight - y - 1][x] = color;
+void Bitmap::set_pen_color(RGBTRIPLE color) {
+    pen_color = color;
 }
 
-void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y, RGBTRIPLE color) {
+void Bitmap::set_brush_color(RGBTRIPLE color) {
+    brush_color = color;
+}
+
+void Bitmap::draw_pixel(LONG x, LONG y) {
+    if (x < 0 || y < 0 || x >= inform.biWidth || y >= inform.biHeight)
+        return;
+    picture[inform.biHeight - y - 1][x] = pen_color;
+}
+
+void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y) {
     if (y < 0 || y >= inform.biHeight)
         return;
     if (x1 > x2) 
@@ -240,10 +249,10 @@ void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y, RGBTRIPLE color) {
     if (x2 >= inform.biWidth)
         x2 = inform.biWidth - 1;
     for (int i = x1; i <= x2; ++i)
-        draw_pixel(i, y, color);
+        draw_pixel(i, y);
 }
 
-void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x, RGBTRIPLE color) {
+void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x) {
     if (x < 0 || x >= inform.biWidth)
         return;
     if (y1 > y2)
@@ -255,69 +264,99 @@ void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x, RGBTRIPLE color) {
     if (y2 >= inform.biHeight)
         y2 = inform.biHeight - 1;
     for (int i = y1; i <= y2; ++i)
-        draw_pixel(x, i, color); 
+        draw_pixel(x, i); 
 }
 
-void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y, RGBTRIPLE color, LONG width) {
+void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y, LONG width) {
     for (int i = -half(width); i < half(width + 1); ++i)
-        draw_hor_line(x1, x2, y + i, color);
+        draw_hor_line(x1, x2, y + i);
 }
 
-void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x, RGBTRIPLE color, LONG width) {
+void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x, LONG width) {
     for (int i = -half(width); i < half(width + 1); ++i)
-        draw_ver_line(y1, y2, x + i, color);
+        draw_ver_line(y1, y2, x + i);
 }
 
-void Bitmap::draw_pixel(LONG x, LONG y, RGBTRIPLE color, LONG r) {
+void Bitmap::draw_pixel(LONG x, LONG y, LONG r) {
     for (LONG i = -r; i < r; ++i)
         for (LONG j = -r; j < r; ++j) 
             if (i * i + j * j <= r * r)
-                draw_pixel(x + i, y + j, color);
+                draw_pixel(x + i, y + j);
 }
 
-void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
+void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2) {
     LONG dx = x2 - x1 + 1;
     LONG dy = y2 - y1 + 1;
     double a = (double)dy / dx;
     double b = (double)y1 - a * x1;
     for (LONG x = x1; x <= x2; ++x) {
         LONG y = a * x + b;
-        draw_pixel(x, y, color);
+        draw_pixel(x, y);
     }
     for (LONG y = y1; y <= y2; ++y) {
         LONG x = (y - b) / a;
-        draw_pixel(x, y, color);
+        draw_pixel(x, y);
     }
 }
-void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color, LONG r) {
+void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, LONG r) {
     LONG dx = x2 - x1;
     LONG dy = y2 - y1;
     double a = (double)dy / dx;
     double b = (double)y1 - a * x1;
     for (LONG x = x1; x <= x2; ++x) {
         LONG y = a * x + b;
-        draw_pixel(x, y, color, r);
+        draw_pixel(x, y, r);
     }
     for (LONG y = y1; y <= y2; ++y) {
         LONG x = (y - b) / a;
-        draw_pixel(x, y, color, r);
+        draw_pixel(x, y, r);
     }
 }
 
-void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
-    draw_hor_line(x1, x2, y1, color);
-    draw_hor_line(x1, x2, y2, color);
-    draw_ver_line(y1, y2, x1, color);
-    draw_ver_line(y1, y2, x2, color);
+void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2) {
+    draw_hor_line(x1, x2, y1);
+    draw_hor_line(x1, x2, y2);
+    draw_ver_line(y1, y2, x1);
+    draw_ver_line(y1, y2, x2);
 }
 
-void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color, LONG width) {
-    draw_hor_line(x1, x2, y1, color, width);
-    draw_hor_line(x1, x2, y2, color, width);
-    draw_ver_line(y1, y2, x1, color, width);
-    draw_ver_line(y1, y2, x2, color, width);
+void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, LONG width) {
+    draw_hor_line(x1 - half(width), x2 + half(width), y1, width);
+    draw_hor_line(x1 - half(width), x2 + half(width), y2, width);
+    draw_ver_line(y1 - half(width), y2 + half(width), x1, width);
+    draw_ver_line(y1 - half(width), y2 + half(width), x2, width);
 }
 
+void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, LONG width, bool filled) {
+    if (filled)
+        draw_fill_rectangle(x1, y1, x2, y2);
+    draw_rectangle(x1, y1, x2, y2, width);
+}
+
+void Bitmap::draw_fill_rectangle(LONG x1, LONG y1, LONG x2, LONG y2) {
+    if (x1 > x2)
+        swap(x1, x2);
+    if (x2 < 0 || x1 >= inform.biWidth)
+        return;
+    if (y1 > y2)
+        swap(y1, y2);
+    if (y2 < 0 || y1 >= inform.biHeight)
+        return;
+    if (x1 < 0)
+        x1 = 0;
+    if (x2 >= inform.biWidth)
+        x2 = inform.biWidth - 1;
+    if (y1 < 0)
+        y1 = 0;
+    if (y2 >= inform.biHeight)
+        y2 = inform.biHeight - 1;
+    swap(pen_color, brush_color);
+    for (LONG i = x1; i <= x2; ++i)
+        for (LONG j = y1; j <= y2; ++j)
+            draw_pixel(i, j);
+    swap(pen_color, brush_color);
+}
+	
 void Bitmap::flip() {
 	RGBTRIPLE ** newPicture = new RGBTRIPLE *[inform.biWidth];
 	for (LONG index = 0; index < inform.biWidth; ++index)
@@ -330,6 +369,27 @@ void Bitmap::flip() {
 	delete[] picture;
 	picture = newPicture;
 	swap(inform.biWidth, inform.biHeight);
+}
+
+void Bitmap::flip(LONG x1, LONG y1, LONG x2, LONG y2) {
+    if (x1 > x2)
+        swap(x1, x2);
+    if (y1 > y2)
+        swap(y1, y2);
+    LONG dx = (x2 - x1);
+    LONG dy = (y2 - y1);
+    RGBTRIPLE buffer[dy + 1][dx + 1];
+    for (LONG i = x1; i <= x2; ++i) 
+		for (LONG j = y1; j <= y2; ++j)
+            buffer[j - y1][i - x1] = picture[inform.biHeight - j - 1][i];
+    for (LONG i = x1; i <= x2; ++i) 
+		for (LONG j = y1; j <= y2; ++j)
+			buffer[j - y1][i - x1] = picture[inform.biHeight + i - dy / 2 - 1][x1 + dx / 2 + j];
+    for (LONG i = x1; i <= x2; ++i) 
+		for (LONG j = y1; j <= y2; ++j)
+            picture[inform.biHeight - j - 1][i] = buffer[j - y1][i - x1];
+
+    
 }
 
 void Bitmap::print_info() {
