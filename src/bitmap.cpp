@@ -223,13 +223,61 @@ int Bitmap::save(const std::string & path) {
 
 void Bitmap::draw_pixel(LONG x, LONG y, RGBTRIPLE color) {
     if (x < 0 || y < 0 || x >= inform.biWidth || y >= inform.biHeight)
-        throw std::runtime_error("point is not inside of picture");
+        return;
+    // throw std::runtime_error("point is not inside of picture");
     picture[inform.biHeight - y - 1][x] = color;
 }
 
+void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y, RGBTRIPLE color) {
+    if (y < 0 || y >= inform.biHeight)
+        return;
+    if (x1 > x2) 
+        swap(x1, x2);
+    if (x2 < 0 || x1 >= inform.biWidth)
+        return;
+    if (x1 < 0)
+        x1 = 0;
+    if (x2 >= inform.biWidth)
+        x2 = inform.biWidth - 1;
+    for (int i = x1; i <= x2; ++i)
+        draw_pixel(i, y, color);
+}
+
+void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x, RGBTRIPLE color) {
+    if (x < 0 || x >= inform.biWidth)
+        return;
+    if (y1 > y2)
+        swap(y1, y2);
+    if (y2 < 0 || y1 >= inform.biHeight)
+        return;
+    if (y1 < 0)
+        y1 = 0;
+    if (y2 >= inform.biHeight)
+        y2 = inform.biHeight - 1;
+    for (int i = y1; i <= y2; ++i)
+        draw_pixel(x, i, color); 
+}
+
+void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y, RGBTRIPLE color, LONG width) {
+    for (int i = -half(width); i < half(width + 1); ++i)
+        draw_hor_line(x1, x2, y + i, color);
+}
+
+void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x, RGBTRIPLE color, LONG width) {
+    for (int i = -half(width); i < half(width + 1); ++i)
+        draw_ver_line(y1, y2, x + i, color);
+}
+
+void Bitmap::draw_pixel(LONG x, LONG y, RGBTRIPLE color, LONG r) {
+    for (LONG i = -r; i < r; ++i)
+        for (LONG j = -r; j < r; ++j) 
+            if (i * i + j * j <= r * r)
+                draw_pixel(x + i, y + j, color);
+}
+
 void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
-    LONG dx = x2 - x1;
-    LONG dy = y2 - y1;
+    LONG dx = x2 - x1 + 1;
+    LONG dy = y2 - y1 + 1;
     double a = (double)dy / dx;
     double b = (double)y1 - a * x1;
     for (LONG x = x1; x <= x2; ++x) {
@@ -241,22 +289,47 @@ void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
         draw_pixel(x, y, color);
     }
 }
+void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color, LONG r) {
+    LONG dx = x2 - x1;
+    LONG dy = y2 - y1;
+    double a = (double)dy / dx;
+    double b = (double)y1 - a * x1;
+    for (LONG x = x1; x <= x2; ++x) {
+        LONG y = a * x + b;
+        draw_pixel(x, y, color, r);
+    }
+    for (LONG y = y1; y <= y2; ++y) {
+        LONG x = (y - b) / a;
+        draw_pixel(x, y, color, r);
+    }
+}
+
+void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color) {
+    draw_hor_line(x1, x2, y1, color);
+    draw_hor_line(x1, x2, y2, color);
+    draw_ver_line(y1, y2, x1, color);
+    draw_ver_line(y1, y2, x2, color);
+}
+
+void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color, LONG width) {
+    draw_hor_line(x1, x2, y1, color, width);
+    draw_hor_line(x1, x2, y2, color, width);
+    draw_ver_line(y1, y2, x1, color, width);
+    draw_ver_line(y1, y2, x2, color, width);
+}
 
 void Bitmap::flip() {
 	RGBTRIPLE ** newPicture = new RGBTRIPLE *[inform.biWidth];
-	for (LONG index = 0; index < inform.biWidth; ++index) {
+	for (LONG index = 0; index < inform.biWidth; ++index)
 		newPicture[index] = new RGBTRIPLE[inform.biHeight];	
-	}
 	for (LONG i = 0; i < inform.biWidth; ++i) 
 		for (LONG j = 0; j < inform.biHeight; ++j)
-			newPicture[i][j] = picture[inform.biHeight - j - 1][inform.biWidth - i - 1];		
-	for (LONG index = 0; index < inform.biHeight; ++index)
-		delete[] picture[index];
+			newPicture[i][j] = picture[j][inform.biWidth - i - 1];		
+	for (LONG i = 0; i < inform.biHeight; ++i)
+		delete[] picture[i];
 	delete[] picture;
 	picture = newPicture;
-	LONG temp = inform.biWidth;
-	inform.biWidth = inform.biHeight;
-	inform.biHeight = temp;
+	swap(inform.biWidth, inform.biHeight);
 }
 
 void Bitmap::print_info() {

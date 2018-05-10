@@ -14,6 +14,8 @@ private:
     BITMAPINFO          inform;
     RGBTRIPLE **        picture;
     RGBTRIPLE *         palette;
+    RGBTRIPLE color_pen;
+    RGBTRIPLE color_brush;
 
     int readHeader(std::ifstream & inStream);
     int readInform(std::ifstream & inStream);
@@ -30,7 +32,11 @@ private:
     int paletteSize();
 
     BYTE bitExtract(DWORD byte, DWORD mask);
-
+public:
+    void draw_hor_line(LONG x1, LONG x2, LONG y, RGBTRIPLE color);
+    void draw_ver_line(LONG y1, LONG y2, LONG x, RGBTRIPLE color);
+    void draw_hor_line(LONG x1, LONG x2, LONG y, RGBTRIPLE color, LONG width);
+    void draw_ver_line(LONG y1, LONG y2, LONG x, RGBTRIPLE color, LONG width);
 public:
     Bitmap();
 
@@ -44,7 +50,14 @@ public:
     int save(const std::string & path);
     
     void draw_pixel(LONG x, LONG y, RGBTRIPLE color);
+    void draw_pixel(LONG x, LONG y, RGBTRIPLE color, LONG r);
+
     void draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color);
+    void draw_line(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color, LONG r);
+
+    void draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color);
+    void draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, RGBTRIPLE color, LONG width);
+
 	void flip();
 
     int draw(int x, int y, int lineWidth, int lineColor, int isSolid, int solidColor);
@@ -75,6 +88,18 @@ void read(std::ifstream & inStream, Type & value) {
 template <typename Type>
 void write(std::ofstream & outStream, Type value) {
     outStream.write(reinterpret_cast<char *>(&value), sizeof(value));
+}
+
+template <typename Type>
+void swap(Type & a, Type & b) {
+    Type temp = a;
+    a = b;
+    b = temp;
+}
+
+template <typename Type>
+Type half(Type value) {
+    return (value >> 1);
 }
 
 #endif // __BITMAP_HPP__
