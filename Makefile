@@ -1,7 +1,7 @@
 
 INCLUDE = ./include/
 CODE 	= ./src/
-OBJ 	= main.o bitmap.o bitmapdef.o
+OBJ 	= main.o bitmap.o bitmapdef.o colors.o
 EXE 	= LameBitmapReader
 CC 		= gcc
 CXX		= g++
@@ -18,6 +18,9 @@ bitmap.o: $(CODE)bitmap.cpp $(INCLUDE)bitmap.hpp $(INCLUDE)bitmapdef.h
 
 bitmapdef.o: $(CODE)bitmapdef.c $(INCLUDE)bitmapdef.h 
 	$(CC) -c $(CODE)bitmapdef.c
+
+colors.o: $(CODE)colors.cpp $(INCLUDE)colors.hpp
+	$(CC) -c $(CODE)colors.cpp
 
 clean:
 	rm $(OBJ) $(EXE)

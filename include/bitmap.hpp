@@ -53,6 +53,7 @@ public:
     void set_brush_color(RGBTRIPLE color);
 
     void draw_pixel(LONG x, LONG y);
+    void draw_pixel(LONG x, LONG y, RGBTRIPLE c);
     void draw_pixel(LONG x, LONG y, LONG r);
 
     void draw_line(LONG x1, LONG y1, LONG x2, LONG y2);

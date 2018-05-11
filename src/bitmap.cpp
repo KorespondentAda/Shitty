@@ -74,15 +74,15 @@ int Bitmap::readPalette(std::ifstream & inStream) {
 int Bitmap::readPicture(std::ifstream & inStream) {
     if (inform.biBitCount != 24)
         std::runtime_error("Unsupported biBitCount");
-    picture = new RGBTRIPLE *[inform.biHeight];
-    for (int i = 0; i < inform.biHeight; ++i) 
-        picture[i] = new RGBTRIPLE[inform.biWidth];
+    picture = new RGBTRIPLE *[inform.biWidth];
+    for (int i = 0; i < inform.biWidth; ++i) 
+        picture[i] = new RGBTRIPLE[inform.biHeight];
     int padding = linePadding();
     for (int i = 0; i < inform.biHeight; ++i) {
         for (int j = 0; j < inform.biWidth; ++j) {
-            read(inStream, picture[i][j].rgbtBlue);
-            read(inStream, picture[i][j].rgbtGreen);
-            read(inStream, picture[i][j].rgbtRed);
+            read(inStream, picture[j][inform.biHeight - i - 1].rgbtBlue);
+            read(inStream, picture[j][inform.biHeight - i - 1].rgbtGreen);
+            read(inStream, picture[j][inform.biHeight - i - 1].rgbtRed);
         }
         inStream.seekg(padding, std::ios_base::cur);
     }   
@@ -154,9 +154,9 @@ int Bitmap::writePicture(std::ofstream & outStream) {
     
     for (int i = 0; i < inform.biHeight; ++i) {
         for (int j = 0; j < inform.biWidth; ++j) {
-            write(outStream, picture[i][j].rgbtBlue);
-            write(outStream, picture[i][j].rgbtGreen);
-            write(outStream, picture[i][j].rgbtRed);
+            write(outStream, picture[j][inform.biHeight - i - 1].rgbtBlue);
+            write(outStream, picture[j][inform.biHeight - i - 1].rgbtGreen);
+            write(outStream, picture[j][inform.biHeight - i - 1].rgbtRed);
         }
         for (int j = 0; j < padding; ++j)
             write(outStream, BYTE(0x00));
@@ -234,7 +234,13 @@ void Bitmap::set_brush_color(RGBTRIPLE color) {
 void Bitmap::draw_pixel(LONG x, LONG y) {
     if (x < 0 || y < 0 || x >= inform.biWidth || y >= inform.biHeight)
         return;
-    picture[inform.biHeight - y - 1][x] = pen_color;
+    picture[x][y] = pen_color;
+}
+
+void Bitmap::draw_pixel(LONG x, LONG y, RGBTRIPLE c) {
+    if (x < 0 || y < 0 || x >= inform.biWidth || y >= inform.biHeight)
+        return;
+    picture[x][y] = c;
 }
 
 void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y) {
@@ -248,7 +254,7 @@ void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y) {
         x1 = 0;
     if (x2 >= inform.biWidth)
         x2 = inform.biWidth - 1;
-    for (int i = x1; i <= x2; ++i)
+    for (LONG i = x1; i <= x2; ++i)
         draw_pixel(i, y);
 }
 
@@ -263,17 +269,17 @@ void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x) {
         y1 = 0;
     if (y2 >= inform.biHeight)
         y2 = inform.biHeight - 1;
-    for (int i = y1; i <= y2; ++i)
+    for (LONG i = y1; i <= y2; ++i)
         draw_pixel(x, i); 
 }
 
 void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y, LONG width) {
-    for (int i = -half(width); i < half(width + 1); ++i)
+    for (LONG i = -half(width); i < half(width + 1); ++i)
         draw_hor_line(x1, x2, y + i);
 }
 
 void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x, LONG width) {
-    for (int i = -half(width); i < half(width + 1); ++i)
+    for (LONG i = -half(width); i < half(width + 1); ++i)
         draw_ver_line(y1, y2, x + i);
 }
 
@@ -358,13 +364,13 @@ void Bitmap::draw_fill_rectangle(LONG x1, LONG y1, LONG x2, LONG y2) {
 }
 	
 void Bitmap::flip() {
-	RGBTRIPLE ** newPicture = new RGBTRIPLE *[inform.biWidth];
-	for (LONG index = 0; index < inform.biWidth; ++index)
-		newPicture[index] = new RGBTRIPLE[inform.biHeight];	
-	for (LONG i = 0; i < inform.biWidth; ++i) 
-		for (LONG j = 0; j < inform.biHeight; ++j)
-			newPicture[i][j] = picture[j][inform.biWidth - i - 1];		
+	RGBTRIPLE ** newPicture = new RGBTRIPLE *[inform.biHeight];
 	for (LONG i = 0; i < inform.biHeight; ++i)
+		newPicture[i] = new RGBTRIPLE[inform.biWidth];	
+	for (LONG i = 0; i < inform.biHeight; ++i) 
+		for (LONG j = 0; j < inform.biWidth; ++j)
+			newPicture[i][j] = picture[j][i];
+	for (LONG i = 0; i < inform.biWidth; ++i)
 		delete[] picture[i];
 	delete[] picture;
 	picture = newPicture;
@@ -374,19 +380,31 @@ void Bitmap::flip() {
 void Bitmap::flip(LONG x1, LONG y1, LONG x2, LONG y2) {
     if (x1 > x2)
         swap(x1, x2);
+    if (x2 < 0 || x1 >= inform.biWidth)
+        return;
     if (y1 > y2)
         swap(y1, y2);
+    if (y2 < 0 || y1 >= inform.biHeight)
+        return;
+    if (x1 < 0)
+        x1 = 0;
+    if (x2 >= inform.biWidth)
+        x2 = inform.biWidth - 1;
+    if (y1 < 0)
+        y1 = 0;
+    if (y2 >= inform.biHeight)
+        y2 = inform.biHeight - 1;
     LONG dx = (x2 - x1);
     LONG dy = (y2 - y1);
-    RGBTRIPLE buffer[dy + 1][dx + 1];
-    for (LONG i = x1; i <= x2; ++i) 
-		for (LONG j = y1; j <= y2; ++j)
-			buffer[j - y1][i - x1] = picture[inform.biHeight - y2 + j - 1][x2 - i];
-    for (LONG i = x1; i <= x2; ++i) 
-		for (LONG j = y1; j <= y2; ++j)
-            picture[inform.biHeight - j - 1][i] = buffer[j - y1][i - x1];
-
-    
+    RGBTRIPLE buffer[dx + 1][dy + 1];
+    for (LONG i = 0; i <= dx; ++i) 
+		for (LONG j = 0; j <= dy; ++j)
+			buffer[i][j] = picture[x1 + i][y2 - j];
+    draw_fill_rectangle(x1, y1, x2, y2);
+    for (LONG i = 0; i <= dx; ++i) 
+		for (LONG j = 0; j <= dy; ++j) {
+            draw_pixel(x1 + j + (dx - dy) / 2, y1 + i + (dy - dx) / 2, buffer[i][j]);
+        }
 }
 
 void Bitmap::fractal_1(LONG x1, LONG y1, LONG x2, LONG y2) {
