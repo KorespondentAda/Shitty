@@ -6,7 +6,7 @@
 const RGBTRIPLE BLACK = { 0, 0, 0 };
 const RGBTRIPLE WHITE = { 255, 255, 255 };
 const RGBTRIPLE RED = { 0, 0, 255 };
-const RGBTRIPLE GREEN = { 0, 255, 0 };
+const RGBTRIPLE LIME = { 0, 255, 0 };
 const RGBTRIPLE BLUE = { 255, 0, 0 };
 const RGBTRIPLE YELLOW = { 0, 255, 255 };
 const RGBTRIPLE PINK = { 255, 0, 255 };
@@ -34,13 +34,15 @@ int main(/*int argc, char * argv[]*/) {
     image.set_brush_color(YELLOW);
     image.draw_rectangle(-70, 70, 100, 120, 5, true);
     */
-
     image.set_pen_color(PINK);
+    image.set_brush_color(YELLOW);
+    image.fractal_2(20, 20, 160, 160);
+
+    /*
     image.draw_pixel(60, 40, 10);
-    image.draw_pixel(140, 120, 10);
-    
-    image.flip(60, 40, 140, 120);
-    
+    image.draw_pixel(160, 140, 10);
+    */
+    image.flip();
     image.save("result.bmp");
     return 0;
 }

@@ -63,6 +63,9 @@ public:
     void draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, LONG width, bool filled);
     void draw_fill_rectangle(LONG x1, LONG y1, LONG x2, LONG y2);
 	
+    void fractal_1(LONG x1, LONG y1, LONG x2, LONG y2);
+    void fractal_2(LONG x1, LONG y1, LONG x2, LONG y2);
+
     void flip();
     void flip(LONG x1, LONG y1, LONG x2, LONG y2);
 

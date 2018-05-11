@@ -381,16 +381,51 @@ void Bitmap::flip(LONG x1, LONG y1, LONG x2, LONG y2) {
     RGBTRIPLE buffer[dy + 1][dx + 1];
     for (LONG i = x1; i <= x2; ++i) 
 		for (LONG j = y1; j <= y2; ++j)
-            buffer[j - y1][i - x1] = picture[inform.biHeight - j - 1][i];
-    for (LONG i = x1; i <= x2; ++i) 
-		for (LONG j = y1; j <= y2; ++j)
-			buffer[j - y1][i - x1] = picture[inform.biHeight + i - dy / 2 - 1][x1 + dx / 2 + j];
+			buffer[j - y1][i - x1] = picture[inform.biHeight - y2 + j - 1][x2 - i];
     for (LONG i = x1; i <= x2; ++i) 
 		for (LONG j = y1; j <= y2; ++j)
             picture[inform.biHeight - j - 1][i] = buffer[j - y1][i - x1];
 
     
 }
+
+void Bitmap::fractal_1(LONG x1, LONG y1, LONG x2, LONG y2) {
+    if (x2 - x1 < 4 || y2 - y1 < 4)
+        return;
+    draw_line(x1, y1, x2, y1);
+    draw_line(x2, y1, x2, y2);
+    draw_line(x1, y2, x2, y2);
+    draw_line(x1, y1, x1, y2);
+    LONG dx = (x2 - x1);
+    LONG dy = (y2 - y1);
+    draw_line(x1, y1 + dy / 2, x1 + dx / 2, y1);
+    draw_line(x1, y1 + dy / 2, x1 + dx / 2, y2);
+    draw_line(x1 + dx / 2, y2, x2, y1 + dy / 2);
+    draw_line(x1 + dx / 2, y1, x2, y1 + dy / 2);
+    LONG v1x = x1 + (dx >> 2);
+    LONG v1y = y1 + (dy >> 2);
+    LONG v2x = x2 - (dx >> 2);
+    LONG v2y = y2 - (dy >> 2);
+    fractal_1(v1x, v1y, v2x, v2y);
+}
+
+void Bitmap::fractal_2(LONG x1, LONG y1, LONG x2, LONG y2) {
+    if (x2 - x1 < 6 || y2 - y1 < 6)
+        return;
+    LONG dx = (x2 - x1);
+    LONG dy = (y2 - y1);
+    LONG tdx = dx / 3;
+    LONG tdy = dy / 3;
+    draw_fill_rectangle(x1 + tdx, y1 + tdy, x2 - tdx, y2 - tdy);
+    fractal_2(x1, y1, x1 + tdx, y1 + tdy);
+    fractal_2(x1 + tdx, y1, x2 - tdx, y1 + tdy);
+    fractal_2(x2 - tdx, y1, x2, y1 + tdy);
+    fractal_2(x1, y1 + tdy, x1 + tdx, y2 - tdy);
+    fractal_2(x2 - tdx, y1 + tdy, x2, y2 - tdy);
+    fractal_2(x1, y2 - tdy, x1 + tdx, y2);
+    fractal_2(x1 + tdx, y2 - tdy, x2 - tdx, y2);
+    fractal_2(x2 - tdx, y2 - tdy, x2, y2);
+} 
 
 void Bitmap::print_info() {
     printf("< < < Bitmap information > > >\n");
