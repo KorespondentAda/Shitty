@@ -1,5 +1,6 @@
 
 #include "../include/bitmap.hpp"
+#include "../include/colors.hpp"
 
 #include <cstdint>
 #include <cstring>
@@ -7,8 +8,8 @@
 Bitmap::Bitmap() {
     memset(&header, 0x00, sizeof(BITMAPFILEHEADER));
     memset(&inform, 0x00, sizeof(BITMAPINFO));
-    pen_color = { 0, 0, 0 }; // black
-    brush_color = { 255, 255, 255 }; // white
+    pen_color = colors::BLACK;
+    brush_color = colors::WHITE;
 }
 
 int Bitmap::readHeader(std::ifstream & inStream) {
@@ -192,35 +193,43 @@ BYTE Bitmap::bitExtract(DWORD byte, DWORD mask) {
 }
 
 int Bitmap::load(const std::string & path) {
-    
     std::ifstream inStream(path, std::ifstream::binary);
     if (!inStream.is_open())
         throw std::runtime_error("Can not open file: " + path);
-    
     readHeader(inStream);
     readInform(inStream);
     readPalette(inStream);
     readPicture(inStream);
-
     inStream.close();
-    
     return 0;
 }
 
 int Bitmap::save(const std::string & path) {
-    
     std::ofstream outStream(path, std::ofstream::binary);
     if (!outStream.is_open())
          throw std::runtime_error("Can not open file: " + path);
-
     writeHeader(outStream);
     writeInform(outStream);
     writePalette(outStream);
     writePicture(outStream);
-
     outStream.close();
-    
     return 0;
+
+}
+bool Bitmap::is_inside_x(LONG x) {
+    return (x >= 0 && x < inform.biWidth);
+}
+
+bool Bitmap::is_inside_y(LONG y) {
+    return (y >= 0 && y < inform.biHeight);
+}
+
+bool Bitmap::is_inside(LONG x, LONG y) {
+    return (is_inside_x(x) && is_inside_y(y));
+}
+
+void Bitmap::set_pen_width(LONG width) {
+    pen_width = width;
 }
 
 void Bitmap::set_pen_color(RGBTRIPLE color) {
@@ -232,19 +241,12 @@ void Bitmap::set_brush_color(RGBTRIPLE color) {
 }
 
 void Bitmap::draw_pixel(LONG x, LONG y) {
-    if (x < 0 || y < 0 || x >= inform.biWidth || y >= inform.biHeight)
-        return;
-    picture[x][y] = pen_color;
-}
-
-void Bitmap::draw_pixel(LONG x, LONG y, RGBTRIPLE c) {
-    if (x < 0 || y < 0 || x >= inform.biWidth || y >= inform.biHeight)
-        return;
-    picture[x][y] = c;
+    if (is_inside(x, y))
+        picture[x][y] = pen_color;
 }
 
 void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y) {
-    if (y < 0 || y >= inform.biHeight)
+    if (!is_inside_y(y))
         return;
     if (x1 > x2) 
         swap(x1, x2);
@@ -259,7 +261,7 @@ void Bitmap::draw_hor_line(LONG x1, LONG x2, LONG y) {
 }
 
 void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x) {
-    if (x < 0 || x >= inform.biWidth)
+    if (!is_inside_x(x))
         return;
     if (y1 > y2)
         swap(y1, y2);
@@ -283,69 +285,75 @@ void Bitmap::draw_ver_line(LONG y1, LONG y2, LONG x, LONG width) {
         draw_ver_line(y1, y2, x + i);
 }
 
-void Bitmap::draw_pixel(LONG x, LONG y, LONG r) {
-    for (LONG i = -r; i < r; ++i)
-        for (LONG j = -r; j < r; ++j) 
-            if (i * i + j * j <= r * r)
-                draw_pixel(x + i, y + j);
+// +
+void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2) {
+    const LONG dx = abs(x2 - x1);
+    const LONG dy = abs(y2 - y1);
+    const LONG sx = sign(x2 - x1);
+    const LONG sy = sign(y2 - y1);
+    int error = dx - dy;
+    do {
+        draw_fill_circle(x1, y1, half(pen_width));
+        const int error2 = error << 1;
+        if(error2 > -dy) {
+            error -= dy;
+            x1 += sx;
+        }
+        if(error2 < dx) {
+            error += dx;
+            y1 += sy;
+        }
+    } while (x1 != x2 || y1 != y2);
 }
 
-void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2) {
-    LONG dx = x2 - x1 + 1;
-    LONG dy = y2 - y1 + 1;
-    double a = (double)dy / dx;
-    double b = (double)y1 - a * x1;
-    for (LONG x = x1; x <= x2; ++x) {
-        LONG y = a * x + b;
-        draw_pixel(x, y);
-    }
-    for (LONG y = y1; y <= y2; ++y) {
-        LONG x = (y - b) / a;
-        draw_pixel(x, y);
+// + 
+void Bitmap::draw_circle(LONG x, LONG y, LONG r) {
+    LONG _x = 0;
+    LONG _y = r;
+    LONG delta = 1 - 2 * r;
+    LONG error = 0;
+    while (_y >= 0) {
+        draw_fill_circle(x + _x, y + _y, half(pen_width));
+        draw_fill_circle(x + _x, y - _y, half(pen_width));
+        draw_fill_circle(x - _x, y + _y, half(pen_width));
+        draw_fill_circle(x - _x, y - _y, half(pen_width));
+        error = 2 * (delta + _y) - 1;
+        if ((delta < 0) && (error <= 0)) {
+            delta += 2 * ++_x + 1;
+            continue;
+        }
+        error = 2 * (delta - _x) - 1;
+        if ((delta > 0) && (error > 0)) {
+            delta += 1 - 2 * --_y;
+            continue;
+        }
+        _x++;
+        delta += 2 * (_x - _y);
+        _y--;
     }
 }
-void Bitmap::draw_line(LONG x1, LONG y1, LONG x2, LONG y2, LONG r) {
-    LONG dx = x2 - x1;
-    LONG dy = y2 - y1;
-    double a = (double)dy / dx;
-    double b = (double)y1 - a * x1;
-    for (LONG x = x1; x <= x2; ++x) {
-        LONG y = a * x + b;
-        draw_pixel(x, y, r);
-    }
-    for (LONG y = y1; y <= y2; ++y) {
-        LONG x = (y - b) / a;
-        draw_pixel(x, y, r);
-    }
+
+void Bitmap::draw_fill_circle(LONG x, LONG y, LONG r) {
+    for (LONG i = x - r; i <= x + r; ++i)
+        for (LONG j = y - r; j <= y + r; ++j)
+            if ((i - x) * (i - x) + (j - y) * (j - y) <= r * r)
+                draw_pixel(i, j);
 }
 
 void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2) {
-    draw_hor_line(x1, x2, y1);
-    draw_hor_line(x1, x2, y2);
-    draw_ver_line(y1, y2, x1);
-    draw_ver_line(y1, y2, x2);
-}
-
-void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, LONG width) {
-    draw_hor_line(x1 - half(width), x2 + half(width), y1, width);
-    draw_hor_line(x1 - half(width), x2 + half(width), y2, width);
-    draw_ver_line(y1 - half(width), y2 + half(width), x1, width);
-    draw_ver_line(y1 - half(width), y2 + half(width), x2, width);
-}
-
-void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, LONG width, bool filled) {
-    if (filled)
-        draw_fill_rectangle(x1, y1, x2, y2);
-    draw_rectangle(x1, y1, x2, y2, width);
+    draw_hor_line(x1, x2, y1, pen_width);
+    draw_hor_line(x1, x2, y2, pen_width);
+    draw_ver_line(y1, y2, x1, pen_width);
+    draw_ver_line(y1, y2, x2, pen_width);
 }
 
 void Bitmap::draw_fill_rectangle(LONG x1, LONG y1, LONG x2, LONG y2) {
     if (x1 > x2)
         swap(x1, x2);
-    if (x2 < 0 || x1 >= inform.biWidth)
-        return;
     if (y1 > y2)
         swap(y1, y2);
+    if (x2 < 0 || x1 >= inform.biWidth)
+        return;
     if (y2 < 0 || y1 >= inform.biHeight)
         return;
     if (x1 < 0)
@@ -362,7 +370,13 @@ void Bitmap::draw_fill_rectangle(LONG x1, LONG y1, LONG x2, LONG y2) {
             draw_pixel(i, j);
     swap(pen_color, brush_color);
 }
-	
+
+void Bitmap::draw_rectangle(LONG x1, LONG y1, LONG x2, LONG y2, bool filled) {
+    if (filled)
+        draw_fill_rectangle(x1, y1, x2, y2);
+    draw_rectangle(x1, y1, x2, y2);
+}	
+
 void Bitmap::flip() {
 	RGBTRIPLE ** newPicture = new RGBTRIPLE *[inform.biHeight];
 	for (LONG i = 0; i < inform.biHeight; ++i)
@@ -377,7 +391,7 @@ void Bitmap::flip() {
 	swap(inform.biWidth, inform.biHeight);
 }
 
-void Bitmap::flip(LONG x1, LONG y1, LONG x2, LONG y2) {
+void Bitmap::flip(LONG x1, LONG y1, LONG x2, LONG y2, size_t count) {
     if (x1 > x2)
         swap(x1, x2);
     if (x2 < 0 || x1 >= inform.biWidth)
@@ -394,17 +408,43 @@ void Bitmap::flip(LONG x1, LONG y1, LONG x2, LONG y2) {
         y1 = 0;
     if (y2 >= inform.biHeight)
         y2 = inform.biHeight - 1;
+    
     LONG dx = (x2 - x1);
     LONG dy = (y2 - y1);
-    RGBTRIPLE buffer[dx + 1][dy + 1];
-    for (LONG i = 0; i <= dx; ++i) 
-		for (LONG j = 0; j <= dy; ++j)
-			buffer[i][j] = picture[x1 + i][y2 - j];
+    LONG rows = dx + 1;
+    LONG cols = dy + 1;
+    RGBTRIPLE ** buffer = new RGBTRIPLE *[rows];
+    for (LONG i = 0; i < rows; ++i)
+        buffer[i] = new RGBTRIPLE[cols];
+    for (LONG i = 0; i < rows; ++i) 
+		for (LONG j = 0; j < cols; ++j)
+			buffer[i][j] = picture[x1 + i][y1 + j];
+    
+    for (size_t i = 0; i < count; ++i) {
+        RGBTRIPLE ** newBuffer = new RGBTRIPLE *[cols];
+        for (LONG i = 0; i < cols; ++i)
+            newBuffer[i] = new RGBTRIPLE[rows];	
+        for (LONG i = 0; i < cols; ++i) 
+            for (LONG j = 0; j < rows; ++j)
+                newBuffer[i][j] = buffer[j][cols - i - 1];
+        for (LONG i = 0; i < rows; ++i)
+            delete[] buffer[i];
+        delete[] buffer;
+        buffer = newBuffer;
+        swap(rows, cols);
+    }
+    
     draw_fill_rectangle(x1, y1, x2, y2);
-    for (LONG i = 0; i <= dx; ++i) 
-		for (LONG j = 0; j <= dy; ++j) {
-            draw_pixel(x1 + j + (dx - dy) / 2, y1 + i + (dy - dx) / 2, buffer[i][j]);
+    RGBTRIPLE temp_color = pen_color;
+    for (LONG i = 0; i < rows; ++i) 
+		for (LONG j = 0; j < cols; ++j) {
+            pen_color = buffer[i][j];
+            LONG dz = 0;
+            if (count % 2)
+                dz = half(rows - cols);
+            draw_pixel(x1 + i - dz, y1 + j + dz);
         }
+    pen_color = temp_color;
 }
 
 void Bitmap::fractal_1(LONG x1, LONG y1, LONG x2, LONG y2) {
@@ -428,7 +468,7 @@ void Bitmap::fractal_1(LONG x1, LONG y1, LONG x2, LONG y2) {
 }
 
 void Bitmap::fractal_2(LONG x1, LONG y1, LONG x2, LONG y2) {
-    if (x2 - x1 < 6 || y2 - y1 < 6)
+    if (x2 - x1 < 8 || y2 - y1 < 8)
         return;
     LONG dx = (x2 - x1);
     LONG dy = (y2 - y1);
@@ -445,15 +485,66 @@ void Bitmap::fractal_2(LONG x1, LONG y1, LONG x2, LONG y2) {
     fractal_2(x2 - tdx, y2 - tdy, x2, y2);
 } 
 
+void Bitmap::fractal_3(LONG x1, LONG y1, LONG x2, LONG y2) {
+    if (x2 - x1 < 8 || y2 - y1 < 8)
+        return;
+    LONG dx = (x2 - x1);
+    LONG dy = (y2 - y1);
+    LONG tdx = dx / 3;
+    LONG tdy = dy / 3;
+    draw_fill_rectangle(x1, y1 + tdy, x1 + tdx, y2 - tdy);
+    draw_fill_rectangle(x1 + tdx, y1, x2 - tdx, y1 + tdy);
+    draw_fill_rectangle(x1 + tdx, y2 - tdy, x2 - tdx, y2);
+    draw_fill_rectangle(x2 - tdx, y1 + tdy, x2, y2 - tdy);
+    fractal_3(x1, y1, x1 + tdx, y1 + tdy);
+    fractal_3(x1, y2 - tdy, x1 + tdx, y2);
+    fractal_3(x1 + tdx, y1 + tdy, x2 - tdx, y2 - tdy);
+    fractal_3(x2 - tdx, y1, x2, y1 + tdy);
+    fractal_3(x2 - tdx, y2 - tdy, x2, y2);
+}
+
 void Bitmap::print_info() {
     printf("< < < Bitmap information > > >\n");
     printf("Bitmap HEADER:\n");
-    printf("\tbfType        : %d\n", header.bfType);
-    printf("\tbfSize        : %d\n", header.bfSize);
-    printf("\tbfReserved1   : %d\n", header.bfReserved1);
-    printf("\tbfReserved2   : %d\n", header.bfReserved2);
-    printf("\tbfOffBits     : %d\n", header.bfOffBits);
+    printf("\tbfType            : %x\n", header.bfType);
+    printf("\tbfSize            : %x\n", header.bfSize);
+    printf("\tbfReserved1       : %x\n", header.bfReserved1);
+    printf("\tbfReserved2       : %x\n", header.bfReserved2);
+    printf("\tbfOffBits         : %x\n", header.bfOffBits);
     printf("Bitmap INFO:\n");
+    printf("\tbiSize            : %x\n", inform.biSize);
+    printf("\tbiWidth           : %x\n", inform.biWidth);
+    printf("\tbiHeight          : %x\n", inform.biHeight);
+    printf("\tbiPlanes          : %x\n", inform.biPlanes);
+    printf("\tbiBitCount        : %x\n", inform.biBitCount);
+    if (inform.biSize >= 40) {
+        printf("\tbiCompression     : %x\n", inform.biCompression);
+        printf("\tbiSizeImage       : %x\n", inform.biSizeImage);
+        printf("\tbiXPelsPerMeter   : %x\n", inform.biXPelsPerMeter);
+        printf("\tbiYPelsPerMeter   : %x\n", inform.biYPelsPerMeter);
+        printf("\tbiClrUsed         : %x\n", inform.biClrUsed);
+        printf("\tbiClrImportant    : %x\n", inform.biClrImportant);
+    }
+    if (inform.biSize >= 52) {
+        printf("\tbiRedMask         : %x\n", inform.biRedMask);
+        printf("\tbiGreenMask       : %x\n", inform.biGreenMask);
+        printf("\tbiBlueMask        : %x\n", inform.biBlueMask);
+    }
+    if (inform.biSize >= 56) {
+        printf("\tbiAlphaMask       : %x\n", inform.biAlphaMask);
+    }
+    if (inform.biSize >= 108) {
+        printf("\tbiCSType          : %x\n", inform.biCSType);
+        printf("\tbiGammaRed        : %x\n", inform.biGammaRed);
+        printf("\tbiGammaGreen      : %x\n", inform.biGammaGreen);
+        printf("\tbiGammaBlue       : %x\n", inform.biGammaBlue);
+    }
+    if (inform.biSize >= 124) {
+        printf("\tbiIntent          : %x\n", inform.biIntent);
+        printf("\tbiProfileData     : %x\n", inform.biProfileData);
+        printf("\tbiGammaRed        : %x\n", inform.biProfileSize);
+        printf("\tbiReserved        : %x\n", inform.biReserved);
+    }
 }
 
 Bitmap::~Bitmap() {
@@ -466,12 +557,6 @@ Bitmap::~Bitmap() {
         delete[] palette;
 }
 
-
-void Bitmap::test() {
-    printf("Size        = %x\n", inform.biSize);
-    printf("OffBits     = %d\n", header.bfOffBits);
-    printf("Width       = %d\n", inform.biWidth);
-    printf("BitCount    = %d\n", inform.biBitCount);
-    printf("Padding     = %d\n", linePadding());
-    printf("Palette     = %d\n", paletteSize());
+LONG sign(LONG value) {
+    return (value < 0 ? -1 : value > 0 ? 1 : 0);
 }

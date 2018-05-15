@@ -16,11 +16,11 @@ main.o: $(CODE)main.cpp $(INCLUDE)bitmap.hpp $(INCLUDE)bitmapdef.h
 bitmap.o: $(CODE)bitmap.cpp $(INCLUDE)bitmap.hpp $(INCLUDE)bitmapdef.h
 	$(CXX) $(CFLAGS) $(CODE)bitmap.cpp
 
+colors.o: $(CODE)colors.cpp $(INCLUDE)colors.hpp
+	$(CXX) $(CFLAGS) $(CODE)colors.cpp
+
 bitmapdef.o: $(CODE)bitmapdef.c $(INCLUDE)bitmapdef.h 
 	$(CC) -c $(CODE)bitmapdef.c
-
-colors.o: $(CODE)colors.cpp $(INCLUDE)colors.hpp
-	$(CC) -c $(CODE)colors.cpp
 
 clean:
 	rm $(OBJ) $(EXE)
