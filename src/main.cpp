@@ -29,29 +29,33 @@ static struct option long_options[] = {
     {"rectangle",   required_argument,  0,  'r'},
     {"fill_rect",   required_argument,  0,  'R'},
     {"flip",        required_argument,  0,  'f'},
-    {"fractal",     required_argument,  0,  'c'},
+    {"frame",       required_argument,  0,  'F'},
     {"information", no_argument,        0,  'i'},
+    {"compress",    required_argument,  0,  'c'},
     {0, 0, 0, 0}
 };
 
 int main(int argc, char * argv[]) {
     ColorTable colorTable;
     Bitmap image;
+    
     LONG x1;
     LONG y1;
     LONG x2;
     LONG y2;
-    int an;
-    int ft;
 
+    int an;
+    int w;
+    int ft;
+    
     int index_test = 0;
     int c;
     int option_index = 0;
-    while ((c = getopt_long(argc, argv, "hl:s:w:p:b:R:z:f:c:i?", long_options, &option_index)) != -1) {
+    while ((c = getopt_long(argc, argv, "hl:s:w:p:b:R:z:f:c:iz:?", long_options, &option_index)) != -1) {
         index_test++;
         switch (c) {
         case 'h':
-            // Вывести помощь.
+            help();
             break;
         case 'l':
             image.load(optarg);
@@ -102,33 +106,20 @@ int main(int argc, char * argv[]) {
             an = atoi(argv[optind - 1]) / 90 % 4;
             image.flip(x1, y1, x2, y2, an);
             break;
-        case 'c':
-            if (argc - optind + 1 < 5) {
-                printf("There are not enough arguments. (Expected 5)\n");
+        case 'F':
+            if (argc - optind + 1 < 2) {
+                printf("There are not enough arguments. (Expected 2)\n");
                 return -1;
             }
-            x1 = atoi(argv[optind++ - 1]);
-            y1 = atoi(argv[optind++ - 1]);
-            x2 = atoi(argv[optind++ - 1]);
-            y2 = atoi(argv[optind++ - 1]);
+            w = atoi(argv[optind++ - 1]);
             ft = atoi(argv[optind - 1]);
-            switch (ft) {
-            case 1:
-                image.fractal_1(x1, y1, x2, y2);
-                break;
-            case 2:
-                image.fractal_2(x1, y1, x2, y2);
-                break;
-            case 3:
-                image.fractal_3(x1, y1, x2, y2);
-                break; 
-            default:
-                printf("Unknown fractal...\n");
-                return -1;
-            }
+            image.frame(w, ft);
             break;
         case 'i':
             image.print_info();
+            break;
+        case 'c':
+            image.compress(atoi(optarg));
             break;
         case '?':
             printf("Shit happens)\n");
@@ -146,52 +137,3 @@ int main(int argc, char * argv[]) {
     }
     return 0;
 }
-
-
-/*
-    case 0:
-        // If this option set a flag, do nothing else now. 
-        if (long_options[option_index].flag != 0)
-            break;
-        printf ("option %s", long_options[option_index].name);
-        if (optarg)
-            printf (" with arg %s", optarg);
-        printf ("\n");
-        break;
-*/
-
-/*
-    
-    -p  --pixel
-        LONG x;
-        LONG y;
-    --line
-        LONG x1;
-        LONG y1;
-        LONG x2;
-        LONG y2;
-    -r  --rectangle
-        LONG x1;
-        LONG y1;
-        LONG x2;
-        LONG y2;
-    --filled_rectangle
-        LONG x1;
-        LONG y1;
-        LONG x2;
-        LONG y2;
-    --circle
-        LONG x;
-        LONG y;
-        LONG r;
-    --filled_circle
-        LONG x;
-        LONG y;
-        LONG r;
-    -f  --flip
-        LONG x1;
-        LONG y1;
-        LONG x2;
-        LONG y2;
-        LONG count;
-*/

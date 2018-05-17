@@ -17,30 +17,30 @@ private:
     LONG pen_width;
     RGBTRIPLE pen_color;
     RGBTRIPLE brush_color;
-
-    int readHeader(std::ifstream & inStream);
-    int readInform(std::ifstream & inStream);
-    int readPalette(std::ifstream & inStream);
-    int readPicture(std::ifstream & inStream);
-    
-    int writeHeader(std::ofstream & outStream);
-    int writeInform(std::ofstream & outStream);
-    int writePalette(std::ofstream & outStream);
-    int writePicture(std::ofstream & outStream);
-
-    int checkType();
-    int linePadding();
-    int paletteSize();
-
-    BYTE bitExtract(DWORD byte, DWORD mask);
-
+    void readHeader(std::ifstream & inStream);
+    void readInform(std::ifstream & inStream);
+    void readPalette(std::ifstream & inStream);
+    void readPicture(std::ifstream & inStream);
+    void writeHeader(std::ofstream & outStream);
+    void writeInform(std::ofstream & outStream);
+    void writePalette(std::ofstream & outStream);
+    void writePicture(std::ofstream & outStream);
+    bool checkType();
+    LONG linePadding();
+    LONG paletteSize();
     bool is_inside_x(LONG x);
     bool is_inside_y(LONG y);
     bool is_inside(LONG x, LONG y); 
+
+    RGBTRIPLE get_pixel(LONG x, LONG y);
+    void set_pixel(LONG x, LONG y);
+
     void draw_hor_line(LONG x1, LONG x2, LONG y);
     void draw_ver_line(LONG y1, LONG y2, LONG x);
     void draw_hor_line(LONG x1, LONG x2, LONG y, LONG width);
     void draw_ver_line(LONG y1, LONG y2, LONG x, LONG width);  
+
+    RGBTRIPLE average(LONG x1, LONG y1, LONG x2, LONG y2);
 public:
     Bitmap();
 
@@ -51,7 +51,7 @@ public:
     void set_pen_color(RGBTRIPLE color);
     void set_brush_color(RGBTRIPLE color);
 
-    void draw_pixel(LONG x, LONG y);
+    
     void draw_fill_circle(LONG x, LONG y, LONG r);
 
     // Алгоритм Брезенхэма.
@@ -69,6 +69,10 @@ public:
 
     void flip();
     void flip(LONG x1, LONG y1, LONG x2, LONG y2, size_t count);
+
+    void frame(LONG width, int fractalType);
+
+    void compress(int compression_ratio);
 
     void print_info();
     

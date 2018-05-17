@@ -17,7 +17,7 @@ public:
 };
 
 namespace colors {
-    extern const RGBTRIPLE BLACK;
+    extern const RGBTRIPLE BLACK;       //<Чёрный
     extern const RGBTRIPLE RED;
     extern const RGBTRIPLE GREEN;
     extern const RGBTRIPLE BLUE;
